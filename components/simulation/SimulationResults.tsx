@@ -24,72 +24,75 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      {/* Measurement Probability Chart */}
-      <Card className="col-span-1 lg:col-span-2">
-        <CardHeader>
+    <div className="grid grid-cols-2 grid-rows-2 gap-4 h-full">
+      {/* Measurement Probability Chart - upper left quarter (25%) */}
+      <Card className="col-span-1 row-span-1">
+        <CardHeader className="pb-2">
           <CardTitle>Measurement Probabilities</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-[300px]">
+          <div className="h-full">
             <ProbabilityChart probabilities={results.measurementProbabilities} />
           </div>
         </CardContent>
       </Card>
-      
-      {/* State Vector */}
-      <Card>
-        <CardHeader>
-          <CardTitle>State Vector</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[200px] overflow-auto">
-            <StateVectorDisplay stateVector={results.stateVector} />
-          </div>
-        </CardContent>
-      </Card>
-      
-      {/* Individual Qubit States */}
-      <Card>
-        <CardHeader>
+
+      {/* Qubit States - entire right half (50%) */}
+      <Card className="col-span-1 row-span-2">
+        <CardHeader className="pb-2">
           <CardTitle>Qubit States</CardTitle>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="qubit0" className="w-full">
+          <Tabs defaultValue="qubit0" className="w-full h-full">
             <TabsList className="w-full grid grid-flow-col auto-cols-fr">
               {results.qubitStates.map((_, i) => (
                 <TabsTrigger key={i} value={`qubit${i}`}>Qubit {i}</TabsTrigger>
               ))}
             </TabsList>
-            
+
             {results.qubitStates.map((qubitState, i) => (
-              <TabsContent key={i} value={`qubit${i}`}>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {/* Qubit State Info */}
-                  <div>
+              <TabsContent key={i} value={`qubit${i}`} className="h-full">
+                <div className="grid grid-rows-5 grid-cols-2 gap-4 h-full">
+                  {/* Bloch Sphere Visualization - 80% of height */}
+                  <div className="row-span-4 col-span-2">
+                    <div className="h-full">
+                      <BlochSphereVisualization coordinates={qubitState.blochSphereCoords} />
+                    </div>
+                  </div>
+
+                  {/* State Representation - bottom left */}
+                  <div className="row-span-1 col-span-1">
                     <h4 className="font-medium mb-2">State Representation</h4>
                     <div className="font-mono text-sm">
                       <p>|0⟩: {qubitState.stateVector[0].re.toFixed(4)} + {qubitState.stateVector[0].im.toFixed(4)}i</p>
                       <p>|1⟩: {qubitState.stateVector[1].re.toFixed(4)} + {qubitState.stateVector[1].im.toFixed(4)}i</p>
                     </div>
-                    <h4 className="font-medium mt-4 mb-2">Probabilities</h4>
+                  </div>
+
+                  {/* Probabilities - bottom right */}
+                  <div className="row-span-1 col-span-1">
+                    <h4 className="font-medium mb-2">Probabilities</h4>
                     <div className="font-mono text-sm">
                       <p>P(|0⟩): {(qubitState.probability[0] * 100).toFixed(2)}%</p>
                       <p>P(|1⟩): {(qubitState.probability[1] * 100).toFixed(2)}%</p>
-                    </div>
-                  </div>
-                  
-                  {/* Bloch Sphere Visualization */}
-                  <div>
-                    <h4 className="font-medium mb-2">Bloch Sphere</h4>
-                    <div className="h-[200px] w-full">
-                      <BlochSphereVisualization coordinates={qubitState.blochSphereCoords} />
                     </div>
                   </div>
                 </div>
               </TabsContent>
             ))}
           </Tabs>
+        </CardContent>
+      </Card>
+
+      {/* State Vector - bottom left quarter (25%) */}
+      <Card className="col-span-1 row-span-1">
+        <CardHeader className="pb-2">
+          <CardTitle>State Vector</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[200px] overflow-auto">
+            <StateVectorDisplay stateVector={results.stateVector} />
+          </div>
         </CardContent>
       </Card>
     </div>
