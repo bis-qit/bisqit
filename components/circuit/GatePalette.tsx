@@ -109,14 +109,14 @@ interface GatePaletteProps {
 
 export default function GatePalette({ onSelectGate, selectedGate }: GatePaletteProps) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4" >
       <h2 className="text-xl font-bold">Gate Palette</h2>
       
       <Accordion type="single" collapsible defaultValue="single" className="w-full">
         <AccordionItem value="single">
           <AccordionTrigger>Single-Qubit Gates</AccordionTrigger>
           <AccordionContent>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2" >
               {gateDefinitions
                 .filter(gate => gate.category === 'single')
                 .map(gate => (
@@ -124,7 +124,8 @@ export default function GatePalette({ onSelectGate, selectedGate }: GatePaletteP
                     key={gate.type} 
                     gate={gate} 
                     isSelected={selectedGate === gate.type}
-                    onClick={() => onSelectGate(gate.type)} 
+                    onClick={() => onSelectGate(gate.type)}
+                    color='#AFEEEE'
                   />
                 ))}
             </div>
@@ -143,6 +144,7 @@ export default function GatePalette({ onSelectGate, selectedGate }: GatePaletteP
                     gate={gate} 
                     isSelected={selectedGate === gate.type}
                     onClick={() => onSelectGate(gate.type)} 
+                    color='#DDA0DD'
                   />
                 ))}
             </div>
@@ -160,7 +162,8 @@ export default function GatePalette({ onSelectGate, selectedGate }: GatePaletteP
                     key={gate.type} 
                     gate={gate} 
                     isSelected={selectedGate === gate.type}
-                    onClick={() => onSelectGate(gate.type)} 
+                    onClick={() => onSelectGate(gate.type)}
+                    color='#6CB4EE'
                   />
                 ))}
             </div>
@@ -185,9 +188,10 @@ interface GateButtonProps {
   gate: GateDefinition;
   isSelected: boolean;
   onClick: () => void;
+  color : string;
 }
 
-function GateButton({ gate, isSelected, onClick }: GateButtonProps) {
+function GateButton({ gate, isSelected, onClick ,color}: GateButtonProps) {
   return (
     <TooltipProvider>
       <Tooltip>
@@ -196,8 +200,9 @@ function GateButton({ gate, isSelected, onClick }: GateButtonProps) {
             variant={isSelected ? "default" : "outline"}
             className={`w-full h-16 ${isSelected ? 'border-primary border-2' : ''}`}
             onClick={onClick}
+            style={{ backgroundColor: color }}
           >
-            <div className="flex flex-col items-center justify-center">
+            <div className="flex flex-col items-center justify-center" >
               <span className="text-lg font-bold">{gate.symbol}</span>
               <span className="text-xs">{gate.name}</span>
             </div>

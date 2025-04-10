@@ -82,7 +82,7 @@ export default function ProbabilityChart({ probabilities }: ProbabilityChartProp
       .call(d3.axisBottom(x))
       .selectAll("text")
       .style("text-anchor", "end")
-      .attr("dx", ".5em")
+      .attr("dx", "1.0em")
       .attr("transform");
 
     // Add x-axis label

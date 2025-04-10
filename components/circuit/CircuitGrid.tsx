@@ -1,4 +1,4 @@
-"use client";
+"use client";    // color at line 90
 
 import { useRef, useState} from "react";
 import { Gate, Qubit, GateType } from "@/lib/types";
@@ -83,10 +83,11 @@ export default function CircuitGrid({
         style={{
           width: `${cellWidth * (gridCells + 2)}px`,
           minHeight: `${cellHeight * qubits.length}px`,
+          
         }}
       >
         {/* Circuit grid background */}
-        <div className="absolute inset-0">
+        <div className="absolute inset-0" /*style = {{backgroundColor: "#041E42" }}*/>
           {qubits.map((qubit, qubitIndex) => (
             <div 
               key={qubit.id} 
