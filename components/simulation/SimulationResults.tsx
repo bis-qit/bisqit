@@ -27,13 +27,11 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
     <div className="grid grid-cols-2 grid-rows-2 gap-4 h-full">
       {/* Measurement Probability Chart - upper left quarter (25%) */}
       <Card className="col-span-1 row-span-1">
-        <CardHeader className="pb-2">
+        <CardHeader className="pb-1">
           <CardTitle>Measurement Probabilities</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="h-full">
-            <ProbabilityChart probabilities={results.measurementProbabilities} />
-          </div>
+        <CardContent className="pt-0">
+          <ProbabilityChart probabilities={results.measurementProbabilities} />
         </CardContent>
       </Card>
 
@@ -42,7 +40,7 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
         <CardHeader className="pb-2">
           <CardTitle>Qubit States</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-2">
           <Tabs defaultValue="qubit0" className="w-full h-full">
             <TabsList className="w-full grid grid-flow-col auto-cols-fr">
               {results.qubitStates.map((_, i) => (
@@ -52,9 +50,9 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
 
             {results.qubitStates.map((qubitState, i) => (
               <TabsContent key={i} value={`qubit${i}`} className="h-full">
-                <div className="grid grid-rows-5 grid-cols-2 gap-4 h-full">
-                  {/* Bloch Sphere Visualization - 80% of height */}
-                  <div className="row-span-4 col-span-2">
+                <div className="grid grid-rows-6 grid-cols-2 gap-2 h-full">
+                  {/* Bloch Sphere Visualization - Increased to 5/6 of height */}
+                  <div className="row-span-5 col-span-2">
                     <div className="h-full">
                       <BlochSphereVisualization coordinates={qubitState.blochSphereCoords} />
                     </div>
@@ -62,7 +60,7 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
 
                   {/* State Representation - bottom left */}
                   <div className="row-span-1 col-span-1">
-                    <h4 className="font-medium mb-2">State Representation</h4>
+                    <h4 className="font-medium mb-1">State Representation</h4>
                     <div className="font-mono text-sm">
                       <p>|0⟩: {qubitState.stateVector[0].re.toFixed(4)} + {qubitState.stateVector[0].im.toFixed(4)}i</p>
                       <p>|1⟩: {qubitState.stateVector[1].re.toFixed(4)} + {qubitState.stateVector[1].im.toFixed(4)}i</p>
@@ -71,7 +69,7 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
 
                   {/* Probabilities - bottom right */}
                   <div className="row-span-1 col-span-1">
-                    <h4 className="font-medium mb-2">Probabilities</h4>
+                    <h4 className="font-medium mb-1">Probabilities</h4>
                     <div className="font-mono text-sm">
                       <p>P(|0⟩): {(qubitState.probability[0] * 100).toFixed(2)}%</p>
                       <p>P(|1⟩): {(qubitState.probability[1] * 100).toFixed(2)}%</p>

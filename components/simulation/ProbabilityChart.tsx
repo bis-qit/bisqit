@@ -22,18 +22,21 @@ export default function ProbabilityChart({ probabilities }: ProbabilityChartProp
     // Clear previous chart
     d3.select(svgRef.current).selectAll("*").remove();
 
-    // Define chart dimensions
-    const margin = { top: 20, right: 20, bottom: 60, left: 40 };
-    const barWidth = 40; // Width of each bar
-    const barPadding = 10; // Padding between bars
-    const chartWidth = data.length * (barWidth + barPadding); // Dynamic width based on number of bars
-    const containerWidth = svgRef.current.clientWidth;
-    const width = Math.max(chartWidth, containerWidth) - margin.left - margin.right;
-    const height = svgRef.current.clientHeight - margin.top - margin.bottom;
+    // Define chart dimensions with appropriate margins
+    const margin = { top: 15, right: 20, bottom: 35, left: 40 };
+    
+    // Determine minimum bar width based on number of outcomes
+    const minBarWidth = 40; // Minimum width for each bar
+    const barPadding = 10;
+    const totalWidth = Math.max(300, data.length * (minBarWidth + barPadding));
+    
+    // Set height to be proportional but reasonable
+    const height = 180;
+    const width = totalWidth - margin.left - margin.right;
 
-    // Create SVG
+    // Create SVG with fixed dimensions for the container
     const svg = d3.select(svgRef.current)
-      .attr("width", width + margin.left + margin.right)
+      .attr("width", totalWidth)
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
@@ -60,7 +63,7 @@ export default function ProbabilityChart({ probabilities }: ProbabilityChartProp
       .attr("y", d => y(d.probability))
       .attr("height", d => height - y(d.probability))
       .attr("fill", "steelblue")
-      .attr("rx", 3) // Rounded corners
+      .attr("rx", 3)
       .attr("ry", 3);
 
     // Add probability values on top of bars
@@ -75,43 +78,29 @@ export default function ProbabilityChart({ probabilities }: ProbabilityChartProp
       .style("font-size", "10px")
       .text(d => d.probability > 0.01 ? `${(d.probability * 100).toFixed(1)}%` : "");
 
-    // Add x-axis
-    svg.append("g")
-      .attr("class", "x-axis")
+    // Add x-axis with better positioning
+    const xAxis = svg.append("g")
       .attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x))
-      .selectAll("text")
-      .style("text-anchor", "end")
-      .attr("dx", "1.0em")
-      .attr("transform");
-
-    // Add x-axis label
-    svg.append("text")
-      .attr("class", "x-axis-label")
-      .attr("x", width / 2)
-      .attr("y", height + margin.bottom - 10)
-      .attr("text-anchor", "middle")
-      .text("Measurement Outcome");
+      .call(d3.axisBottom(x));
+    
+    // Adjust x-axis labels if needed for many outcomes
+    if (data.length > 8) {
+      xAxis.selectAll("text")
+        .attr("y", 10)
+        .attr("x", -5)
+        .attr("transform", "rotate(-45)")
+        .style("text-anchor", "end");
+    }
 
     // Add y-axis
     svg.append("g")
-      .attr("class", "y-axis")
-      .call(d3.axisLeft(y).tickFormat(d => `${(+d * 100).toFixed(0)}%`));
+      .call(d3.axisLeft(y).ticks(5).tickFormat(d => `${(+d * 100).toFixed(0)}%`));
 
-    // Add y-axis label
-    svg.append("text")
-      .attr("class", "y-axis-label")
-      .attr("transform", "rotate(-90)")
-      .attr("x", -height / 2)
-      .attr("y", -margin.left + 12)
-      .attr("text-anchor", "middle")
-      .text("Probability");
-
-  }, [probabilities, svgRef.current?.clientWidth, svgRef.current?.clientHeight]);
+  }, [probabilities]);
 
   return (
-    <div className="w-full h-full overflow-x-auto">
-      <svg ref={svgRef} className="h-full"></svg>
+    <div className="overflow-x-auto overflow-y-auto max-h-[220px]">
+      <svg ref={svgRef} />
     </div>
   );
 }
