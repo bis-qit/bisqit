@@ -15,6 +15,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { GateType, GateDefinition } from "@/lib/types";
+import { useDraggable } from "@dnd-kit/core";
+import { DragHandleDots2Icon } from "@radix-ui/react-icons";
 
 // Gate definitions with their properties
 const gateDefinitions: GateDefinition[] = [
@@ -203,6 +205,7 @@ export default function GatePalette({
                 </div>
               </AccordionContent>
             </AccordionItem>
+
           </Accordion>
 
           {selectedGate && (
@@ -227,24 +230,52 @@ interface GateButtonProps {
   color: string;
 }
 
+
+
 function GateButton({ gate, isSelected, onClick, color }: GateButtonProps) {
+  // Make the gate button draggable
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `palette-${gate.type}`,
+    data: {
+      type: 'palette-gate',
+      gateType: gate.type
+    },
+    disabled: !isSelected,
+  });
+
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button
-            variant={isSelected ? "default" : "outline"}
-            className={`w-full h-12 ${
-              isSelected ? "border-primary border-2" : ""
-            }`}
-            onClick={onClick}
-            style={{ backgroundColor: isSelected ? undefined : color }}
-          >
-            <div className="flex flex-col items-center justify-center">
-              <span className="text-md font-bold">{gate.symbol}</span>
-              <span className="text-xs">{gate.name}</span>
+          <div className="relative">
+            <Button
+              variant={isSelected ? "default" : "outline"}
+              className={`w-full h-12 ${isSelected ? "border-primary border-2" : ""}`}
+              onClick={onClick}
+              style={{ backgroundColor: isSelected ? undefined : color }}
+            >
+              <div className="flex flex-col items-center justify-center">
+                <span className="text-md font-bold">{gate.symbol}</span>
+                <span className="text-xs">{gate.name}</span>
+              </div>
+            </Button>
+            
+            {/* Separate drag handle */}
+            <div 
+              ref={setNodeRef}
+              {...attributes}
+              {...listeners}
+              className="absolute top-0 right-0 p-1 cursor-grab hover:bg-gray-200 rounded-bl-md rounded-tr-md active:cursor-grabbing"
+              style={{ 
+                touchAction: 'none',
+                opacity: isDragging ? 0.5 : 0.8,
+                zIndex: 10,
+                background: 'rgba(255,255,255,0.3)'
+              }}
+            >
+              <DragHandleDots2Icon className="h-4 w-4" />
             </div>
-          </Button>
+          </div>
         </TooltipTrigger>
         <TooltipContent>
           <p>{gate.description}</p>
