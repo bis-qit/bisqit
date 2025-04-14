@@ -43,6 +43,11 @@ export default function GateComponent({
   const height = gate.qubitIndices.length > 1 
     ? (gate.qubitIndices[gate.qubitIndices.length - 1] - gate.qubitIndices[0] + 1) * cellHeight
     : cellHeight;
+
+  const backgroundColor = gate.color || 
+    (gateDefinition.category === 'single' ? "#AFEEEE" : 
+    gateDefinition.category === 'multi' ? "#DDA0DD" : 
+    gateDefinition.category === 'parametric' ? "#6CB4EE" : "#FFFFFF");
   
   return (
     <div
@@ -69,6 +74,7 @@ export default function GateComponent({
                 relative rounded-md cursor-grab active:cursor-grabbing
                 ${isDragging ? 'shadow-lg' : 'shadow-md'}
               `}
+              style={{backgroundColor}}
             >
               {/* Single qubit gate */}
               {(gateDefinition.category === 'single' || gateDefinition.category === 'parametric') && (

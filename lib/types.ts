@@ -26,6 +26,7 @@ export interface Gate {
     phi?: number;
     lambda?: number;
   };
+  color?: string;
 }
 
 // Qubit types

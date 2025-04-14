@@ -9,7 +9,11 @@ interface CircuitGridProps {
   qubits: Qubit[];
   circuit: { gates: Gate[] };
   selectedGate: GateType | null;
-  onPlaceGate: (position: number, qubitIndices: number[]) => void;
+  onPlaceGate: (
+    position: number,
+    qubitIndices: number[],
+    color?: string
+  ) => void;
   onRemoveGate: (gateId: string) => void;
 }
 
@@ -22,13 +26,13 @@ export default function CircuitGrid({
 }: CircuitGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
   const [gridCells, setGridCells] = useState<number>(20); // Number of time steps
-  
+
   // Generate grid cells for each qubit
   const cellWidth = 50;
   const cellHeight = 60;
-
+  
   return (
-    <div 
+    <div
       ref={gridRef}
       className="relative"
       style={{
@@ -39,26 +43,21 @@ export default function CircuitGrid({
       {/* Circuit grid background */}
       <div className="absolute inset-0">
         {qubits.map((qubit, qubitIndex) => (
-          <div 
-            key={qubit.id} 
-            className="flex items-center h-[60px] relative"
-          >
+          <div key={qubit.id} className="flex items-center h-[60px] relative">
             {/* Qubit label */}
-            <div 
-              className="w-[50px] h-full flex items-center justify-center font-mono text-sm"
-            >
+            <div className="w-[50px] h-full flex items-center justify-center font-mono text-sm">
               q<sub>{qubit.index}</sub>
             </div>
-            
+
             {/* Qubit wire */}
             <div className="flex-1 h-[2px] bg-gray-300 relative">
               {/* Grid cells for gate placement */}
               <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 flex">
                 {Array.from({ length: gridCells }).map((_, position) => (
-                  <DropZone 
+                  <DropZone
                     key={position}
                     id={`cell-${position}-${qubitIndex}`}
-                    width={cellWidth} 
+                    width={cellWidth}
                     height={cellHeight}
                   />
                 ))}
@@ -66,17 +65,17 @@ export default function CircuitGrid({
             </div>
           </div>
         ))}
-        
+
         {/* Measurement dashed line */}
-        <div 
+        <div
           className="absolute top-0 bottom-0 border-l-2 border-dashed border-gray-500"
           style={{ left: `${cellWidth * (gridCells - 2) + 25}px` }}
         />
       </div>
-      
+
       {/* Gates */}
       {circuit.gates.map((gate) => (
-        <GateComponent 
+        <GateComponent
           key={gate.id}
           gate={gate}
           cellWidth={cellWidth}
@@ -99,20 +98,23 @@ function DropZone({ id, width, height }: DropZoneProps) {
   const { setNodeRef, isOver } = useDroppable({
     id,
   });
-  
+
   return (
     <div
       ref={setNodeRef}
       className={`transition-colors duration-200 ${
-        isOver 
-          ? 'bg-primary/20 border-2 border-primary border-dashed' 
-          : 'border border-transparent hover:border-gray-300 hover:bg-gray-50'
+        isOver
+          ? "bg-primary/20 border-2 border-primary border-dashed"
+          : "border border-transparent hover:border-gray-300 hover:bg-gray-50"
       }`}
       style={{
         width,
         height,
-        borderRadius: '4px',
+        borderRadius: "4px",
       }}
     />
   );
 }
+
+
+// before update

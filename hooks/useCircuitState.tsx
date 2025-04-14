@@ -90,7 +90,7 @@ export function useCircuitState() {
     }
   }, [qubits]);
   
-  const placeGate = useCallback((position: number, qubitIndices: number[]) => {
+  const placeGate = useCallback((position: number, qubitIndices: number[],color?: string) => {
     if (!selectedGate) return;
     
     const newGate: Gate = {
@@ -101,7 +101,8 @@ export function useCircuitState() {
       parameters: 
         selectedGate === 'rx' || selectedGate === 'ry' || selectedGate === 'rz' 
           ? { theta: 0 } 
-          : undefined
+          : undefined,
+      color
     };
     
     setCircuit(prev => ({
