@@ -45,7 +45,7 @@ export default function QasmExportDialog({
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
+
     toast.success("Downloaded", {
       description: "QASM file has been downloaded",
     });
@@ -60,12 +60,12 @@ export default function QasmExportDialog({
             Below is the generated OpenQASM 2.0 code for your quantum circuit.
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="grid gap-4">
           <pre className="p-4 bg-gray-100 dark:bg-gray-900 rounded-md overflow-auto max-h-[400px] text-sm font-mono">
             {qasmCode}
           </pre>
-          
+
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={handleCopyToClipboard}>
               <Copy className="mr-2 h-4 w-4" />

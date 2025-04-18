@@ -205,12 +205,11 @@ export default function GatePalette({
                 </div>
               </AccordionContent>
             </AccordionItem>
-
           </Accordion>
 
           {selectedGate && (
             <Button
-              className="mt-2 w-full"
+              className="mt-2 w-full transition-colors hover:brightness-90 hover:shadow-md"
               onClick={() => onSelectGate(null)}
               style={{ backgroundColor: "#DD2C3A" }}
             >
@@ -230,15 +229,13 @@ interface GateButtonProps {
   color: string;
 }
 
-
-
 function GateButton({ gate, isSelected, onClick, color }: GateButtonProps) {
   // Make the gate button draggable
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `palette-${gate.type}`,
     data: {
-      type: 'palette-gate',
-      gateType: gate.type
+      type: "palette-gate",
+      gateType: gate.type,
     },
     disabled: !isSelected,
   });
@@ -250,7 +247,9 @@ function GateButton({ gate, isSelected, onClick, color }: GateButtonProps) {
           <div className="relative">
             <Button
               variant={isSelected ? "default" : "outline"}
-              className={`w-full h-12 ${isSelected ? "border-primary border-2" : ""}`}
+              className={`w-full h-12 ${
+                isSelected ? "border-primary border-2" : ""
+              }`}
               onClick={onClick}
               style={{ backgroundColor: isSelected ? undefined : color }}
             >
@@ -259,18 +258,18 @@ function GateButton({ gate, isSelected, onClick, color }: GateButtonProps) {
                 <span className="text-xs">{gate.name}</span>
               </div>
             </Button>
-            
+
             {/* Separate drag handle */}
-            <div 
+            <div
               ref={setNodeRef}
               {...attributes}
               {...listeners}
               className="absolute top-0 right-0 p-1 cursor-grab hover:bg-gray-200 rounded-bl-md rounded-tr-md active:cursor-grabbing"
-              style={{ 
-                touchAction: 'none',
+              style={{
+                touchAction: "none",
                 opacity: isDragging ? 0.5 : 0.8,
                 zIndex: 10,
-                background: 'rgba(255,255,255,0.3)'
+                background: "rgba(255,255,255,0.3)",
               }}
             >
               <DragHandleDots2Icon className="h-4 w-4" />

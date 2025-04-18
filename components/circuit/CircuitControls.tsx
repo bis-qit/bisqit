@@ -35,7 +35,7 @@ export default function CircuitControls({
                 // variant="outline"
                 size="sm"
                 onClick={onAddQubit}
-                className="w-full"
+                className="w-full transition-colors hover:brightness-90 hover:shadow-md"
                 style={{ backgroundColor: "#0132FC" }}
               >
                 <Plus className="mr-1 w-4 h-4" /> Add Qubit
@@ -45,7 +45,7 @@ export default function CircuitControls({
                 size="sm"
                 onClick={onRemoveQubit}
                 disabled={qubitCount <= 1}
-                className="w-full"
+                className="w-full transition-colors hover:brightness-90 hover:shadow-md"
                 style={{ backgroundColor: "#DD2C3A" }}
               >
                 <Minus className="mr-1 w-4 h-4" /> Remove Qubit
@@ -57,7 +57,7 @@ export default function CircuitControls({
             <Button
               variant="default"
               onClick={onRunSimulation}
-              className="w-full"
+              className="w-full transition-colors hover:bg-primary/90 hover:shadow-md"
             >
               <Play className="mr-2 w-4 h-4" /> Run Simulation
             </Button>
@@ -67,7 +67,7 @@ export default function CircuitControls({
             <Button
               variant="outline"
               onClick={onSaveCircuit}
-              className="w-full"
+              className="w-full transition-colors hover:bg-accent hover:text-accent-foreground hover:shadow-md"
             >
               <Save className="mr-2 w-4 h-4" /> Save Circuit
             </Button>

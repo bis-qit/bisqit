@@ -3,7 +3,12 @@
 import { Gate } from "@/lib/types";
 import { useDraggable } from "@dnd-kit/core";
 import { findGateDefinition } from "@/lib/utils";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { X } from "lucide-react";
 
 interface GateComponentProps {
@@ -21,40 +26,52 @@ export default function GateComponent({
   qubitCount,
   onRemove,
 }: GateComponentProps) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-    id: `gate-${gate.id}`,
-  });
-  
+  const { attributes, listeners, setNodeRef, transform, isDragging } =
+    useDraggable({
+      id: `gate-${gate.id}`,
+    });
+
   const gateDefinition = findGateDefinition(gate.type);
-  
+
   if (!gateDefinition) {
     return null;
   }
-  
+
   // Calculate position in the grid
   const left = gate.position * cellWidth + cellWidth;
   const top = gate.qubitIndices[0] * cellHeight;
-  
-  const style = transform ? {
-    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-  } : undefined;
-  
-  // Calculate height for multi-qubit gates
-  const height = gate.qubitIndices.length > 1 
-    ? (gate.qubitIndices[gate.qubitIndices.length - 1] - gate.qubitIndices[0] + 1) * cellHeight
-    : cellHeight;
 
-  const backgroundColor = gate.color || 
-    (gateDefinition.category === 'single' ? "#AFEEEE" : 
-    gateDefinition.category === 'multi' ? "#DDA0DD" : 
-    gateDefinition.category === 'parametric' ? "#6CB4EE" : "#FFFFFF");
-  
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+      }
+    : undefined;
+
+  // Calculate height for multi-qubit gates
+  const height =
+    gate.qubitIndices.length > 1
+      ? (gate.qubitIndices[gate.qubitIndices.length - 1] -
+          gate.qubitIndices[0] +
+          1) *
+        cellHeight
+      : cellHeight;
+
+  const backgroundColor =
+    gate.color ||
+    (gateDefinition.category === "single"
+      ? "#AFEEEE"
+      : gateDefinition.category === "multi"
+      ? "#DDA0DD"
+      : gateDefinition.category === "parametric"
+      ? "#6CB4EE"
+      : "#FFFFFF");
+
   return (
     <div
       ref={setNodeRef}
       style={{
         ...style,
-        position: 'absolute',
+        position: "absolute",
         width: `${cellWidth}px`,
         height: `${height}px`,
         left: `${left}px`,
@@ -68,56 +85,97 @@ export default function GateComponent({
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <div 
+            <div
               className={`
                 w-full h-full flex flex-col items-center justify-center 
                 relative rounded-md cursor-grab active:cursor-grabbing
-                ${isDragging ? 'shadow-lg' : 'shadow-md'}
+                ${isDragging ? "shadow-lg" : "shadow-md"}
               `}
-              style={{backgroundColor}}
+              style={{ backgroundColor }}
             >
-              {/* Single qubit gate */}
-              {(gateDefinition.category === 'single' || gateDefinition.category === 'parametric') && (
+              {/* Single qubit gate or parametric gate */}
+              {(gateDefinition.category === "single" ||
+                gateDefinition.category === "parametric") && (
                 <div className="font-bold text-center">
-                    {gateDefinition.symbol}
+                  {gateDefinition.symbol}
                   {gate.parameters?.theta !== undefined && (
-                    <span className="text-xs block">(θ={gate.parameters.theta.toFixed(1)})</span>
+                    <span className="text-xs block">
+                      (θ={gate.parameters.theta.toFixed(1)})
+                    </span>
                   )}
                 </div>
               )}
-              
+
               {/* Multi qubit gate */}
-              {gateDefinition.category === 'multi' && (
+              {gateDefinition.category === "multi" && (
                 <div className="w-full h-full relative">
                   {/* For CNOT */}
-                  {gate.type === 'cx' && (
+                  {gate.type === "cx" && (
                     <>
-                      <div className="absolute w-4 h-4 rounded-full bg-orange-700 top-[20px] left-[18px]"></div>
-                      <div className="absolute w-full h-[2px] bg-orange-700 top-[30px]"></div>
-                      <div className="absolute w-6 h-6 rounded-full border-2 border-orange-700 flex items-center justify-center top-[72px] left-[17px]">
-                        <span className="font-bold text-orange-700">X</span>
+                      {/* Control dot */}
+                      <div
+                        className="absolute w-3 h-3 rounded-full bg-orange-700 left-1/2 transform -translate-x-1/2"
+                        style={{ top: "20%" }}
+                      ></div>
+                      {/* Vertical line connecting control to target */}
+                      <div className="absolute w-[2px] h-[50%] bg-orange-700 left-1/2 transform -translate-x-1/2 top-[20%]"></div>
+                      {/* Target X */}
+                      <div
+                        className="absolute w-5 h-5 rounded-full border-2 border-orange-700 flex items-center justify-center left-1/2 transform -translate-x-1/2"
+                        style={{ top: "70%" }}
+                      >
+                        <span className="font-bold text-orange-700 text-xs">
+                          X
+                        </span>
                       </div>
                     </>
                   )}
-                  
+
                   {/* For SWAP */}
-                  {gate.type === 'swap' && (
+                  {gate.type === "swap" && (
                     <>
-                      <div className="absolute w-6 h-6 font-bold text-xl top-[17px] left-[17px] text-cyan-700">×</div>
-                      <div className="absolute w-full h-[2px] bg-cyan-700 top-[30px]"></div>
-                      <div className="absolute w-6 h-6 font-bold text-xl top-[72px] left-[17px] text-cyan-700">×</div>
+                      {/* Top X */}
+                      <div
+                        className="absolute font-bold text-cyan-700 text-xl left-1/2 transform -translate-x-1/2"
+                        style={{ top: "13%" }}
+                      >
+                        ×
+                      </div>
+                      {/* Vertical line connecting Xs */}
+                      <div className="absolute w-[2px] h-[50%] bg-cyan-700 left-1/2 transform -translate-x-1/2 top-[25%]"></div>
+                      {/* Bottom X */}
+                      <div
+                        className="absolute font-bold text-cyan-700 text-xl left-1/2 transform -translate-x-1/2"
+                        style={{ top: "63%" }}
+                      >
+                        ×
+                      </div>
                     </>
                   )}
-                  
+
                   {/* For Toffoli */}
-                  {gate.type === 'ccx' && (
+                  {gate.type === "ccx" && (
                     <>
-                      <div className="absolute w-4 h-4 rounded-full bg-amber-700 top-[20px] left-[18px]"></div>
-                      <div className="absolute w-full h-[2px] bg-amber-700 top-[30px]"></div>
-                      <div className="absolute w-4 h-4 rounded-full bg-amber-700 top-[78px] left-[18px]"></div>
-                      <div className="absolute w-full h-[2px] bg-amber-700 top-[90px]"></div>
-                      <div className="absolute w-6 h-6 rounded-full border-2 border-amber-700 flex items-center justify-center top-[138px] left-[17px]">
-                        <span className="font-bold text-amber-700">X</span>
+                      {/* First control dot */}
+                      <div
+                        className="absolute w-3 h-3 rounded-full bg-amber-700 left-1/2 transform -translate-x-1/2"
+                        style={{ top: "13%" }}
+                      ></div>
+                      {/* Vertical line connecting all elements */}
+                      <div className="absolute w-[2px] h-[64%] bg-amber-700 left-1/2 transform -translate-x-1/2 top-[15%]"></div>
+                      {/* Second control dot */}
+                      <div
+                        className="absolute w-3 h-3 rounded-full bg-amber-700 left-1/2 transform -translate-x-1/2"
+                        style={{ top: "47%" }}
+                      ></div>
+                      {/* Target X */}
+                      <div
+                        className="absolute w-5 h-5 rounded-full border-2 border-amber-700 flex items-center justify-center left-1/2 transform -translate-x-1/2"
+                        style={{ top: "78%" }}
+                      >
+                        <span className="font-bold text-amber-700 text-xs">
+                          X
+                        </span>
                       </div>
                     </>
                   )}
@@ -125,7 +183,7 @@ export default function GateComponent({
               )}
 
               {/* Remove button */}
-              <button 
+              <button
                 className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600"
                 onClick={(e) => {
                   e.stopPropagation();

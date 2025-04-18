@@ -30,7 +30,7 @@ export default function CircuitGrid({
   // Generate grid cells for each qubit
   const cellWidth = 50;
   const cellHeight = 60;
-  
+
   return (
     <div
       ref={gridRef}
@@ -115,6 +115,5 @@ function DropZone({ id, width, height }: DropZoneProps) {
     />
   );
 }
-
 
 // before update

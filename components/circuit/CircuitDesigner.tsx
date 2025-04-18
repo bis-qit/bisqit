@@ -247,14 +247,14 @@ export default function CircuitDesigner() {
               {/* Control dot */}
               <div
                 className="absolute w-3 h-3 rounded-full bg-orange-700 left-1/2 transform -translate-x-1/2"
-                style={{ top: "15%" }}
+                style={{ top: "20%" }}
               ></div>
               {/* Vertical line connecting control to target */}
-              <div className="absolute w-[2px] h-[70%] bg-orange-700 left-1/2 transform -translate-x-1/2 top-[15%]"></div>
+              <div className="absolute w-[2px] h-[50%] bg-orange-700 left-1/2 transform -translate-x-1/2 top-[20%]"></div>
               {/* Target X */}
               <div
                 className="absolute w-5 h-5 rounded-full border-2 border-orange-700 flex items-center justify-center left-1/2 transform -translate-x-1/2"
-                style={{ top: "75%" }}
+                style={{ top: "70%" }}
               >
                 <span className="font-bold text-orange-700 text-xs">X</span>
               </div>
@@ -267,16 +267,16 @@ export default function CircuitDesigner() {
               {/* Top X */}
               <div
                 className="absolute font-bold text-cyan-700 text-xl left-1/2 transform -translate-x-1/2"
-                style={{ top: "15%" }}
+                style={{ top: "13%" }}
               >
                 ×
               </div>
               {/* Vertical line connecting Xs */}
-              <div className="absolute w-[2px] h-[70%] bg-cyan-700 left-1/2 transform -translate-x-1/2 top-[15%]"></div>
+              <div className="absolute w-[2px] h-[50%] bg-cyan-700 left-1/2 transform -translate-x-1/2 top-[25%]"></div>
               {/* Bottom X */}
               <div
                 className="absolute font-bold text-cyan-700 text-xl left-1/2 transform -translate-x-1/2"
-                style={{ top: "75%" }}
+                style={{ top: "63%" }}
               >
                 ×
               </div>
@@ -289,19 +289,19 @@ export default function CircuitDesigner() {
               {/* First control dot */}
               <div
                 className="absolute w-3 h-3 rounded-full bg-amber-700 left-1/2 transform -translate-x-1/2"
-                style={{ top: "10%" }}
+                style={{ top: "13%" }}
               ></div>
               {/* Vertical line connecting all elements */}
-              <div className="absolute w-[2px] h-[80%] bg-amber-700 left-1/2 transform -translate-x-1/2 top-[10%]"></div>
+              <div className="absolute w-[2px] h-[64%] bg-amber-700 left-1/2 transform -translate-x-1/2 top-[15%]"></div>
               {/* Second control dot */}
               <div
                 className="absolute w-3 h-3 rounded-full bg-amber-700 left-1/2 transform -translate-x-1/2"
-                style={{ top: "45%" }}
+                style={{ top: "47%" }}
               ></div>
               {/* Target X */}
               <div
                 className="absolute w-5 h-5 rounded-full border-2 border-amber-700 flex items-center justify-center left-1/2 transform -translate-x-1/2"
-                style={{ top: "80%" }}
+                style={{ top: "78%" }}
               >
                 <span className="font-bold text-amber-700 text-xs">X</span>
               </div>
