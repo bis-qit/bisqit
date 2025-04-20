@@ -175,7 +175,7 @@ export default function CircuitDesigner() {
           <TabsContent value="design" className="mt-4 flex-1">
             <div className="flex flex-col lg:flex-row gap-4 h-full min-h-screen">
               {/* Left sidebar - Gate Palette */}
-              <div className="w-full lg:w-80 h-auto lg:h-[calc(100vh-240px)] overflow-y-auto p-4 border rounded-lg">
+              <div className="w-full lg:w-80 h-auto min-h-[calc(100vh-240px)] p-4 border rounded-lg">
                 <GatePalette
                   onSelectGate={setSelectedGate}
                   selectedGate={selectedGate}

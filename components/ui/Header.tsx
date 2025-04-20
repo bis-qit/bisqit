@@ -17,9 +17,9 @@ export default function Header() {
               style={{ marginTop: 0 }}
             />
           </div>
-          <h1 className="text-3xl font-bold text-white">BisQit</h1>
+          <h1 className="text-3xl font-bold text-black">BisQit</h1>
         </div>
-        <h2 className="text-xl font-medium text-white hidden sm:block">
+        <h2 className="text-xl font-medium text-black hidden sm:block">
           Basic Interactive Simulator for Quantum Information & Technology
         </h2>
       </div>
