@@ -7,7 +7,6 @@ import ProbabilityChart from "./ProbabilityChart";
 import StateVectorDisplay from "./StateVectorDisplay";
 import BlochSphereVisualization from "./BlochSphereVisualization";
 import { Download } from "lucide-react";
-import { toPng } from "html-to-image";
 
 interface SimulationResultsProps {
   results: SimResults | null;

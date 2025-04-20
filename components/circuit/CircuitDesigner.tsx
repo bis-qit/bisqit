@@ -25,6 +25,7 @@ export default function CircuitDesigner() {
     id: string;
     gateType?: string;
   } | null>(null);
+  const [activeTab, setActiveTab] = useState("design");
 
   const {
     circuit,
@@ -141,6 +142,12 @@ export default function CircuitDesigner() {
     })
   );
 
+  const handleRunSimulation = () => {
+    runSimulation();
+    // Automatically switch to the simulation results tab
+    setActiveTab("simulation");
+  };
+
   return (
     <DndContext
       onDragStart={handleDragStart}
@@ -148,14 +155,14 @@ export default function CircuitDesigner() {
       sensors={sensors}
     >
       <div className="flex flex-col gap-4 min-h-[calc(100vh-120px)]">
-        <Tabs defaultValue="design" className="w-full h-full flex flex-col">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full h-full flex flex-col">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="design">Circuit Design</TabsTrigger>
             <TabsTrigger value="simulation">Simulation Results</TabsTrigger>
           </TabsList>
 
           <TabsContent value="design" className="mt-4 flex-1">
-            <div className="flex flex-col lg:flex-row gap-4 h-full">
+            <div className="flex flex-col lg:flex-row gap-4 h-full min-h-screen">
               {/* Left sidebar - Gate Palette */}
               <div className="w-full lg:w-64 h-auto lg:h-[calc(100vh-240px)] overflow-y-auto p-4 border rounded-lg">
                 <GatePalette
@@ -165,25 +172,27 @@ export default function CircuitDesigner() {
               </div>
 
               {/* Main area - Circuit Grid */}
-              <div className="flex-1 border rounded-lg p-4 min-h-[500px] overflow-x-auto">
-                <CircuitGrid
-                  qubits={qubits}
-                  circuit={circuit}
-                  selectedGate={selectedGate}
-                  onPlaceGate={(position, qubitIndices, color) =>
-                    placeGate(position, qubitIndices, color)
-                  }
-                  onRemoveGate={removeGate}
-                />
+              <div className="flex-1 border rounded-lg p-4 min-h-[500px] overflow-hidden">
+                <div className="overflow-x-scroll hide-scrollbar">
+                  <CircuitGrid
+                    qubits={qubits}
+                    circuit={circuit}
+                    selectedGate={selectedGate}
+                    onPlaceGate={(position, qubitIndices, color) =>
+                      placeGate(position, qubitIndices, color)
+                    }
+                    onRemoveGate={removeGate}
+                  />
+                </div>
               </div>
 
               {/* Right sidebar - Circuit Controls */}
-              <div className="w-full lg:w-64 p-4 border rounded-lg">
+              <div className="w-full lg:w-64 p-4 border rounded-lg h-full">
                 <CircuitControls
                   qubitCount={qubits.length}
                   onAddQubit={addQubit}
                   onRemoveQubit={removeQubit}
-                  onRunSimulation={runSimulation}
+                  onRunSimulation={handleRunSimulation} // This passes our modified function
                   onExportQASM={() => setIsQasmDialogOpen(true)}
                 />
               </div>
@@ -346,5 +355,3 @@ export default function CircuitDesigner() {
     return "60px"; // Default height
   }
 }
-
-// before update
