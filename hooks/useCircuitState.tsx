@@ -206,6 +206,12 @@ export function useCircuitState() {
             return `rz(${gate.parameters?.theta || 0}) q[${
               gate.qubitIndices[0]
             }];`;
+          case "s":
+            return `s q[${gate.qubitIndices[0]}];`;
+          case "t":
+            return `t q[${gate.qubitIndices[0]}];`;
+          case "cswap":
+            return `cswap q[${gate.qubitIndices[0]}], q[${gate.qubitIndices[1]}], q[${gate.qubitIndices[2]}];`;
           default:
             return "";
         }
@@ -218,6 +224,13 @@ export function useCircuitState() {
 
     return `${header}${qubitDeclaration}${gateInstructions}\n\n${measureInstructions}`;
   }, [circuit, qubits]);
+
+  const clearCircuit = useCallback(() => {
+    setCircuit((prev) => ({
+      ...prev,
+      gates: [],
+    }));
+  }, []);
 
   return {
     qubits,
@@ -233,5 +246,6 @@ export function useCircuitState() {
     updateGateParameters,
     runSimulation,
     generateQASM,
+    clearCircuit,
   };
 }

@@ -5,10 +5,13 @@ export type GateType =
   | 'x' // Pauli-X
   | 'y' // Pauli-Y
   | 'z' // Pauli-Z
+  | 's' // Phase-S
+  | 't' // Phase-T
   // Multi-qubit gates
   | 'cx' // CNOT
   | 'swap' // SWAP
   | 'ccx' // Toffoli
+  | 'cswap' // Fredkin
   // Parametric gates
   | 'rx' // Rotation-X
   | 'ry' // Rotation-Y

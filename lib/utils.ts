@@ -45,6 +45,24 @@ const gateDefinitions: GateDefinition[] = [
     hasParameters: false,
     maxQubits: 1
   },
+  {
+    type: 's',
+    symbol: 'S',
+    name: 'Phase S',
+    category: 'single',
+    description: 'π/2 phase rotation',
+    hasParameters: false,
+    maxQubits: 1
+  },
+  {
+    type: 't',
+    symbol: 'T',
+    name: 'Phase T',
+    category: 'single',
+    description: 'π/4 phase rotation',
+    hasParameters: false,
+    maxQubits: 1
+  },
   // Multi-qubit gates
   {
     type: 'cx',
@@ -70,6 +88,15 @@ const gateDefinitions: GateDefinition[] = [
     name: 'Toffoli',
     category: 'multi',
     description: 'Controlled-Controlled-X gate',
+    hasParameters: false,
+    maxQubits: 3
+  },
+  {
+    type: 'cswap',
+    symbol: '•⨯⨯',
+    name: 'Fredkin',
+    category: 'multi',
+    description: 'Controlled-SWAP gate',
     hasParameters: false,
     maxQubits: 3
   },

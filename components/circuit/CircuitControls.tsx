@@ -1,8 +1,11 @@
 "use client"; //color on line 27
+
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Plus, Minus, Play, Save, Terminal } from "lucide-react";
+import { Plus, Minus, Play, Save, Terminal, Trash2 } from "lucide-react";
+import ClearCircuitDialog from "@/components/dialogs/ClearCircuitDialog";
 interface CircuitControlsProps {
   qubitCount: number;
   onAddQubit: () => void;
@@ -10,6 +13,7 @@ interface CircuitControlsProps {
   onRunSimulation: () => void;
   onExportQASM: () => void;
   onSaveCircuit?: () => void;
+  onClearCircuit: () => void;
 }
 export default function CircuitControls({
   qubitCount,
@@ -18,9 +22,17 @@ export default function CircuitControls({
   onRunSimulation,
   onExportQASM,
   onSaveCircuit = () => {},
+  onClearCircuit,
 }: CircuitControlsProps) {
+  const [isClearDialogOpen, setIsClearDialogOpen] = useState(false);
   return (
     <div className="flex flex-col gap-4">
+      {/* Add Clear Circuit Dialog */}
+      <ClearCircuitDialog
+        open={isClearDialogOpen}
+        onOpenChange={setIsClearDialogOpen}
+        onConfirm={onClearCircuit}
+      />
       <Card style={{ backgroundColor: "#A37CF0" }}>
         <CardHeader>
           <CardTitle className="text-lg">Circuit Controls</CardTitle>
@@ -49,6 +61,16 @@ export default function CircuitControls({
                 style={{ backgroundColor: "#DD2C3A" }}
               >
                 <Minus className="mr-1 w-4 h-4" /> Remove Qubit
+              </Button>
+              {/* Add Clear Circuit Button */}
+              <Button
+                size="sm"
+                onClick={() => setIsClearDialogOpen(true)}
+                className="w-full transition-colors hover:brightness-90 hover:shadow-md"
+                style={{ backgroundColor: "#FF4040" }}
+                variant="destructive"
+              >
+                <Trash2 className="mr-2 w-4 h-4" /> Clear Circuit
               </Button>
             </div>
           </div>

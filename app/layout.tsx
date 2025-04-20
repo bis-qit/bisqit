@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   title: "BisQit",
   description: "Welcome to BisQit, Basic Interactive Simulator for Quantum Information & Technology!",
   icons: {
-    icon: '/favicon.ico', // This uses the favicon.ico in the public directory
+    icon: 'favicon.ico', // This uses the favicon.ico in the public directory
   }
 };
 

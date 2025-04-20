@@ -1,11 +1,4 @@
 "use client";
-
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -14,9 +7,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useState, useRef } from "react";
+import { Input } from "@/components/ui/input";
 import { GateType, GateDefinition } from "@/lib/types";
 import { useDraggable } from "@dnd-kit/core";
 import { DragHandleDots2Icon } from "@radix-ui/react-icons";
+import { Search } from "lucide-react";
 
 // Gate definitions with their properties
 const gateDefinitions: GateDefinition[] = [
@@ -57,6 +53,24 @@ const gateDefinitions: GateDefinition[] = [
     hasParameters: false,
     maxQubits: 1,
   },
+  {
+    type: "s",
+    symbol: "S",
+    name: "Phase S",
+    category: "single",
+    description: "π/2 phase rotation",
+    hasParameters: false,
+    maxQubits: 1,
+  },
+  {
+    type: "t",
+    symbol: "T",
+    name: "Phase T",
+    category: "single",
+    description: "π/4 phase rotation",
+    hasParameters: false,
+    maxQubits: 1,
+  },
   // Multi-qubit gates
   {
     type: "cx",
@@ -82,6 +96,15 @@ const gateDefinitions: GateDefinition[] = [
     name: "Toffoli",
     category: "multi",
     description: "Controlled-Controlled-X gate",
+    hasParameters: false,
+    maxQubits: 3,
+  },
+  {
+    type: "cswap",
+    symbol: "•─⨯─⨯",
+    name: "Fredkin",
+    category: "multi",
+    description: "Controlled-SWAP gate",
     hasParameters: false,
     maxQubits: 3,
   },
@@ -131,6 +154,39 @@ export default function GatePalette({
     parametric: "#6CB4EE", // Sky blue
   };
 
+  // Add state for search
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Handle search input change
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  // Filter gates based on search query
+  const filteredSingleGates = gateDefinitions.filter(
+    (gate) =>
+      gate.category === "single" &&
+      (!searchQuery.trim() ||
+        gate.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        gate.name.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const filteredMultiGates = gateDefinitions.filter(
+    (gate) =>
+      gate.category === "multi" &&
+      (!searchQuery.trim() ||
+        gate.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        gate.name.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const filteredParametricGates = gateDefinitions.filter(
+    (gate) =>
+      gate.category === "parametric" &&
+      (!searchQuery.trim() ||
+        gate.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        gate.name.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
   return (
     <div className="flex flex-col gap-4">
       <Card style={{ backgroundColor: "#A37CF0" }}>
@@ -138,76 +194,86 @@ export default function GatePalette({
           <CardTitle className="text-lg">Gate Palette</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <Accordion
-            type="multiple"
-            defaultValue={["single"]}
-            className="w-full"
-          >
-            <AccordionItem value="single">
-              <AccordionTrigger className="py-2 [&>svg]:text-black [&>svg]:opacity-100 [&>svg]:w-5 [&>svg]:h-5 font-medium">
-                Single-Qubit Gates
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="grid grid-cols-2 gap-2">
-                  {gateDefinitions
-                    .filter((gate) => gate.category === "single")
-                    .map((gate) => (
-                      <GateButton
-                        key={gate.type}
-                        gate={gate}
-                        isSelected={selectedGate === gate.type}
-                        onClick={() => onSelectGate(gate.type)}
-                        color={categoryColors.single}
-                      />
-                    ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
+          {/* Search bar with icon */}
+          <div className="mb-2 relative">
+            <div className="absolute inset-y-0 left-2 flex items-center pointer-events-none">
+              <Search className="h-4 w-4 text-gray-400" />
+            </div>
+            <Input
+              placeholder="Search gates..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className="bg-white/90 pl-8" // Added left padding to make room for the icon
+            />
+          </div>
 
-            <AccordionItem value="multi">
-              <AccordionTrigger className="py-2 [&>svg]:text-black [&>svg]:opacity-100 [&>svg]:w-5 [&>svg]:h-5 font-medium">
-                Multi-Qubit Gates
-              </AccordionTrigger>
-              <AccordionContent>
+          {/* Display gates by category with section headers */}
+          <div className="space-y-4">
+            {/* Single-qubit gates section */}
+            {filteredSingleGates.length > 0 && (
+              <div>
+                <h3 className="py-2 font-medium text-md">Single-Qubit Gates</h3>
                 <div className="grid grid-cols-2 gap-2">
-                  {gateDefinitions
-                    .filter((gate) => gate.category === "multi")
-                    .map((gate) => (
-                      <GateButton
-                        key={gate.type}
-                        gate={gate}
-                        isSelected={selectedGate === gate.type}
-                        onClick={() => onSelectGate(gate.type)}
-                        color={categoryColors.multi}
-                      />
-                    ))}
+                  {filteredSingleGates.map((gate) => (
+                    <GateButton
+                      key={gate.type}
+                      gate={gate}
+                      isSelected={selectedGate === gate.type}
+                      onClick={() => onSelectGate(gate.type)}
+                      color={categoryColors.single}
+                    />
+                  ))}
                 </div>
-              </AccordionContent>
-            </AccordionItem>
+              </div>
+            )}
 
-            <AccordionItem value="parametric">
-              <AccordionTrigger className="py-2 [&>svg]:text-black [&>svg]:opacity-100 [&>svg]:w-5 [&>svg]:h-5 font-medium">
-                Parametric Gates
-              </AccordionTrigger>
-              <AccordionContent>
+            {/* Multi-qubit gates section */}
+            {filteredMultiGates.length > 0 && (
+              <div>
+                <h3 className="py-2 font-medium text-md">Multi-Qubit Gates</h3>
                 <div className="grid grid-cols-2 gap-2">
-                  {gateDefinitions
-                    .filter((gate) => gate.category === "parametric")
-                    .map((gate) => (
-                      <GateButton
-                        key={gate.type}
-                        gate={gate}
-                        isSelected={selectedGate === gate.type}
-                        onClick={() => onSelectGate(gate.type)}
-                        color={categoryColors.parametric}
-                      />
-                    ))}
+                  {filteredMultiGates.map((gate) => (
+                    <GateButton
+                      key={gate.type}
+                      gate={gate}
+                      isSelected={selectedGate === gate.type}
+                      onClick={() => onSelectGate(gate.type)}
+                      color={categoryColors.multi}
+                    />
+                  ))}
                 </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+              </div>
+            )}
 
-          {selectedGate && (
+            {/* Parametric gates section */}
+            {filteredParametricGates.length > 0 && (
+              <div>
+                <h3 className="py-2 font-medium text-md">Parametric Gates</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {filteredParametricGates.map((gate) => (
+                    <GateButton
+                      key={gate.type}
+                      gate={gate}
+                      isSelected={selectedGate === gate.type}
+                      onClick={() => onSelectGate(gate.type)}
+                      color={categoryColors.parametric}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Show message when no gates match the search */}
+            {filteredSingleGates.length === 0 &&
+              filteredMultiGates.length === 0 &&
+              filteredParametricGates.length === 0 && (
+                <div className="text-center py-4">
+                  No gates match your search
+                </div>
+              )}
+          </div>
+
+          {/* {selectedGate && (
             <Button
               className="mt-2 w-full transition-colors hover:brightness-90 hover:shadow-md"
               onClick={() => onSelectGate(null)}
@@ -215,7 +281,7 @@ export default function GatePalette({
             >
               Clear Selection
             </Button>
-          )}
+          )} */}
         </CardContent>
       </Card>
     </div>
@@ -246,12 +312,18 @@ function GateButton({ gate, isSelected, onClick, color }: GateButtonProps) {
         <TooltipTrigger asChild>
           <div className="relative">
             <Button
-              variant={isSelected ? "default" : "outline"}
-              className={`w-full h-12 ${
-                isSelected ? "border-primary border-2" : ""
+              variant="outline"
+              className={`w-full h-12 transition-all duration-150 ${
+                isSelected
+                  ? "ring-2 ring-red-500 shadow-md transform scale-[1.02] border-2 border-red-500"
+                  : "hover:scale-[1.01] hover:shadow-sm"
               }`}
               onClick={onClick}
-              style={{ backgroundColor: isSelected ? undefined : color }}
+              style={{
+                backgroundColor: color,
+                // Add a subtle brightness change when selected
+                filter: isSelected ? "brightness(1.1)" : "brightness(1)",
+              }}
             >
               <div className="flex flex-col items-center justify-center">
                 <span className="text-md font-bold">{gate.symbol}</span>

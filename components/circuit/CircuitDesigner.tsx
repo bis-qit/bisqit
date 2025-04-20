@@ -103,7 +103,7 @@ export default function CircuitDesigner() {
               if (qubitIndex + 1 < qubits.length) {
                 placeGate(position, [qubitIndex, qubitIndex + 1], color);
               }
-            } else if (gateDefinition.type === "ccx") {
+            } else if (gateDefinition.type === "ccx" || gateDefinition.type === "cswap") {
               // For 3-qubit gates
               if (qubitIndex + 2 < qubits.length) {
                 placeGate(
@@ -148,6 +148,13 @@ export default function CircuitDesigner() {
     setActiveTab("simulation");
   };
 
+  const clearCircuit = () => {
+    const gatesToRemove = [...circuit.gates];
+    gatesToRemove.forEach((gate) => {
+      removeGate(gate.id);
+    });
+  };
+
   return (
     <DndContext
       onDragStart={handleDragStart}
@@ -155,7 +162,11 @@ export default function CircuitDesigner() {
       sensors={sensors}
     >
       <div className="flex flex-col gap-4 min-h-[calc(100vh-120px)]">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full h-full flex flex-col">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="w-full h-full flex flex-col"
+        >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="design">Circuit Design</TabsTrigger>
             <TabsTrigger value="simulation">Simulation Results</TabsTrigger>
@@ -164,7 +175,7 @@ export default function CircuitDesigner() {
           <TabsContent value="design" className="mt-4 flex-1">
             <div className="flex flex-col lg:flex-row gap-4 h-full min-h-screen">
               {/* Left sidebar - Gate Palette */}
-              <div className="w-full lg:w-64 h-auto lg:h-[calc(100vh-240px)] overflow-y-auto p-4 border rounded-lg">
+              <div className="w-full lg:w-80 h-auto lg:h-[calc(100vh-240px)] overflow-y-auto p-4 border rounded-lg">
                 <GatePalette
                   onSelectGate={setSelectedGate}
                   selectedGate={selectedGate}
@@ -173,7 +184,7 @@ export default function CircuitDesigner() {
 
               {/* Main area - Circuit Grid */}
               <div className="flex-1 border rounded-lg p-4 min-h-[500px] overflow-hidden">
-                <div className="overflow-x-scroll hide-scrollbar">
+                <div className="overflow-x-scroll hide-scrollbar pt-4">
                   <CircuitGrid
                     qubits={qubits}
                     circuit={circuit}
@@ -194,6 +205,7 @@ export default function CircuitDesigner() {
                   onRemoveQubit={removeQubit}
                   onRunSimulation={handleRunSimulation} // This passes our modified function
                   onExportQASM={() => setIsQasmDialogOpen(true)}
+                  onClearCircuit={clearCircuit}
                 />
               </div>
             </div>
@@ -316,6 +328,34 @@ export default function CircuitDesigner() {
               </div>
             </div>
           );
+          
+          case "cswap":
+            return (
+              <div className="w-full h-full relative">
+              {/* First control dot */}
+              <div
+                className="absolute w-3 h-3 rounded-full bg-amber-700 left-1/2 transform -translate-x-1/2"
+                style={{ top: "13%" }}
+              ></div>
+              {/* Vertical line connecting all elements */}
+              <div className="absolute w-[2px] h-[33%] bg-amber-700 left-1/2 transform -translate-x-1/2 top-[15%]"></div>
+              {/* First X */}
+              <div
+                className="absolute w-5 h-5 rounded-full border-2 border-amber-700 flex items-center justify-center left-1/2 transform -translate-x-1/2"
+                style={{ top: "48%" }}
+              >
+                <span className="font-bold text-amber-700 text-xs">X</span>
+              </div>
+              <div className="absolute w-[2px] h-[20%] bg-amber-700 left-1/2 transform -translate-x-1/2 top-[58%]"></div>
+              {/* Second X */}
+              <div
+                className="absolute w-5 h-5 rounded-full border-2 border-amber-700 flex items-center justify-center left-1/2 transform -translate-x-1/2"
+                style={{ top: "78%" }}
+              >
+                <span className="font-bold text-amber-700 text-xs">X</span>
+              </div>
+            </div>
+            );
         default:
           return <div className="font-bold">{gateDefinition.symbol}</div>;
       }
@@ -343,7 +383,7 @@ export default function CircuitDesigner() {
       if (gateDefinition.category === "multi") {
         if (gateType === "cx" || gateType === "swap") {
           qubitCount = 2;
-        } else if (gateType === "ccx") {
+        } else if (gateType === "ccx" || gateType === "cswap") {
           qubitCount = 3;
         }
       }

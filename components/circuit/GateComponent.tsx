@@ -179,6 +179,44 @@ export default function GateComponent({
                       </div>
                     </>
                   )}
+
+                  {/*For Fredkin*/}
+                  {gate.type === "cswap" && (
+                    <>
+                      {/* Control qubit (first qubit) */}
+                      <div
+                        className="absolute w-3 h-3 rounded-full bg-amber-700 left-1/2 transform -translate-x-1/2"
+                        style={{ top: "13%" }}
+                      ></div>
+
+                      {/* Vertical line connecting control to SWAP */}
+                      <div className="absolute w-[2px] h-[30%] bg-amber-700 left-1/2 transform -translate-x-1/2 top-[15%]"></div>
+
+                      {/* SWAP symbol for second qubit */}
+                      <div
+                        className="absolute w-5 h-5 rounded-full border-2 border-amber-700 flex items-center justify-center left-1/2 transform -translate-x-1/2"
+                        style={{ top: "45%" }}
+                      >
+                        <span className="font-bold text-amber-700 text-xs">
+                          X
+                        </span>
+                      </div>
+
+                      {/* Vertical line connecting control to SWAP */}
+                      <div className="absolute w-[2px] h-[23%] bg-amber-700 left-1/2 transform -translate-x-1/2 top-[56%]"></div>
+
+                      {/* SWAP symbol for third qubit */}
+                      <div
+                        className="absolute w-5 h-5 rounded-full border-2 border-amber-700 flex items-center justify-center left-1/2 transform -translate-x-1/2"
+                        style={{ top: "78%" }}
+                      >
+                        <span className="font-bold text-amber-700 text-xs">
+                          X
+                        </span>
+                      </div>
+
+                    </>
+                  )}
                 </div>
               )}
 
