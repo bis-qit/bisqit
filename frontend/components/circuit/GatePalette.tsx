@@ -312,6 +312,8 @@ function GateButton({ gate, isSelected, onClick, color }: GateButtonProps) {
         <TooltipTrigger asChild>
           <div className="relative">
             <Button
+              ref={setNodeRef}
+              {...(isSelected ? { ...listeners, ...attributes } : {})}
               variant="outline"
               className={`w-full h-12 transition-all duration-150 ${
                 isSelected

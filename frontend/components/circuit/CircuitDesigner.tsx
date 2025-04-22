@@ -17,8 +17,11 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+import { v4 as uuidv4 } from "uuid";
+import ParameterDialog from "../dialogs/ParameterDialog";
 import { findGateDefinition } from "@/lib/utils";
 import { toast } from "sonner";
+import { GateType } from "@/lib/types";
 
 export default function CircuitDesigner() {
   const [isQasmDialogOpen, setIsQasmDialogOpen] = useState(false);
@@ -45,7 +48,16 @@ export default function CircuitDesigner() {
     runSimulation,
     generateQASM,
     clearCircuit,
+    addGate,
   } = useCircuitState();
+
+  const [paramDialogOpen, setParamDialogOpen] = useState(false);
+  const [pendingGate, setPendingGate] = useState<{
+    position: number;
+    qubitIndex: number;
+    gateType: string;
+    color: string;
+  } | null>(null);
 
   // Track which item is being dragged
   const handleDragStart = (event: DragStartEvent) => {
@@ -91,11 +103,20 @@ export default function CircuitDesigner() {
           // Get the appropriate color based on gate category
           const color = getCategoryColor(gateDefinition.category);
 
+          if (gateDefinition.category === "parametric") {
+            // Save the pending gate info and show the parameter dialog
+            setPendingGate({
+              position,
+              qubitIndex,
+              gateType,
+              color,
+            });
+            setParamDialogOpen(true);
+            return; // Wait for parameter dialog
+          }
+
           // For single-qubit gates
-          if (
-            gateDefinition.category === "single" ||
-            gateDefinition.category === "parametric"
-          ) {
+          if (gateDefinition.category === "single") {
             placeGate(position, [qubitIndex], color);
           }
           // For multi-qubit gates
@@ -108,7 +129,10 @@ export default function CircuitDesigner() {
               if (qubitIndex + 1 < qubits.length) {
                 placeGate(position, [qubitIndex, qubitIndex + 1], color);
               }
-            } else if (gateDefinition.type === "ccx" || gateDefinition.type === "cswap") {
+            } else if (
+              gateDefinition.type === "ccx" ||
+              gateDefinition.type === "cswap"
+            ) {
               // For 3-qubit gates
               if (qubitIndex + 2 < qubits.length) {
                 placeGate(
@@ -146,6 +170,30 @@ export default function CircuitDesigner() {
       },
     })
   );
+
+  const handleParameterConfirm = (theta: number) => {
+    if (pendingGate) {
+      // Create gate with the provided parameter
+      const { position, qubitIndex, gateType, color } = pendingGate;
+
+      // Create new gate with custom parameter
+      const newGate = {
+        id: uuidv4(),
+        type: gateType,
+        position,
+        qubitIndices: [qubitIndex],
+        parameters: { theta },
+        color,
+      };
+
+      // Add the gate directly to the circuit
+      addGate(newGate as any);
+
+      // Reset pending gate and close dialog
+      setPendingGate(null);
+      setParamDialogOpen(false);
+    }
+  };
 
   const handleRunSimulation = () => {
     runSimulation();
@@ -256,6 +304,20 @@ export default function CircuitDesigner() {
             </div>
           )}
         </DragOverlay>
+        {/* Parameter dialog */}
+        <ParameterDialog
+          isOpen={paramDialogOpen}
+          onClose={() => {
+            setParamDialogOpen(false);
+            setPendingGate(null);
+          }}
+          onConfirm={handleParameterConfirm}
+          gateName={
+            pendingGate?.gateType
+              ? findGateDefinition(pendingGate.gateType as any)?.name || ""
+              : ""
+          }
+        />
       </div>
     </DndContext>
   );

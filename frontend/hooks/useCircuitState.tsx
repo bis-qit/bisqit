@@ -282,6 +282,13 @@ export function useCircuitState() {
     }));
   }, []);
 
+  const addGate = useCallback((gate: Gate) => {
+    setCircuit((prev) => ({
+      ...prev,
+      gates: [...prev.gates, gate],
+    }));
+  }, []);
+
   return {
     qubits,
     circuit,
@@ -299,5 +306,6 @@ export function useCircuitState() {
     runSimulation,
     generateQASM,
     clearCircuit,
+    addGate,
   };
 }
