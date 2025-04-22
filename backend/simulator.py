@@ -57,8 +57,12 @@ def simulate_circuit(gates: List[Gate], qubit_count: int, shots: int = 1024, qas
         try:
             logger.info("Executing statevector simulation")
             simulator = Aer.get_backend('statevector_simulator')
-            qc.save_statevector()
-            result = simulator.run(qc).result()
+            # Remove this line which causes the duplicate key error
+            # qc.save_statevector()
+            
+            # Use transpiled circuit and run with correct configuration
+            transpiled_qc = transpile(qc, simulator)
+            result = simulator.run(transpiled_qc).result()
             statevector = result.get_statevector()
 
             if statevector is None:
