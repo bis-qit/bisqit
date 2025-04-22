@@ -26,9 +26,11 @@ export default function ParameterDialog({
   const [theta, setTheta] = useState<string>("0");
 
   const handleSubmit = () => {
-    const value = parseFloat(theta);
-    if (!isNaN(value)) {
-      onConfirm(value);
+    const degrees = parseFloat(theta);
+    if (!isNaN(degrees)) {
+      // Convert degrees to radians before passing to the circuit
+      const radians = (degrees * Math.PI) / 180;
+      onConfirm(radians);
       setTheta("0"); // Reset for next time
     }
   };
@@ -42,12 +44,12 @@ export default function ParameterDialog({
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="theta" className="text-right">
-              θ (radians)
+              Angle (degrees)
             </Label>
             <Input
               id="theta"
               type="number"
-              step="0.1"
+              step="15"
               value={theta}
               onChange={(e) => setTheta(e.target.value)}
               className="col-span-3"

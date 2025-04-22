@@ -100,7 +100,7 @@ export default function GateComponent({
                   {gateDefinition.symbol}
                   {gate.parameters?.theta !== undefined && (
                     <span className="text-xs block">
-                      (θ={gate.parameters.theta.toFixed(1)})
+                      θ={(gate.parameters.theta * 180 / Math.PI).toFixed(1)}°
                     </span>
                   )}
                 </div>

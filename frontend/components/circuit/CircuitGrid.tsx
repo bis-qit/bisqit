@@ -28,8 +28,8 @@ export default function CircuitGrid({
   const [gridCells, setGridCells] = useState<number>(20); // Number of time steps
 
   // Generate grid cells for each qubit
-  const cellWidth = 50;
-  const cellHeight = 60;
+  const cellWidth = 55;
+  const cellHeight = 55;
 
   return (
     <div
