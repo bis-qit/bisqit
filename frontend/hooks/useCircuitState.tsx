@@ -10,6 +10,8 @@ import {
   SimulationResults,
   Complex,
 } from "@/lib/types";
+import { simulateCircuit, generateQasmFromApi } from "@/lib/api";
+import { toast } from "sonner";
 
 // Mock simulation function - in a real app, this would use a quantum simulation library
 const mockSimulation = (
@@ -86,6 +88,8 @@ export function useCircuitState() {
   const [selectedGate, setSelectedGate] = useState<GateType | null>(null);
   const [simulationResults, setSimulationResults] =
     useState<SimulationResults | null>(null);
+  const [isSimulating, setIsSimulating] = useState(false);
+  const [simulationError, setSimulationError] = useState<string | null>(null);
 
   // Circuit manipulation functions
   const addQubit = useCallback(() => {
@@ -163,66 +167,112 @@ export function useCircuitState() {
     []
   );
 
-  const runSimulation = useCallback(() => {
-    const results = mockSimulation(circuit, qubits);
-    setSimulationResults(results);
+  const runSimulation = useCallback(async () => {
+    if (circuit.gates.length === 0) {
+      toast.warning("Empty circuit", {
+        description: "Please add some gates to the circuit before simulating",
+      });
+      return;
+    }
+
+    setIsSimulating(true);
+    setSimulationError(null);
+
+    try {
+      // Call the backend simulation API
+      const results = await simulateCircuit(circuit, qubits);
+      setSimulationResults(results);
+      toast.success("Simulation completed", {
+        description: "Quantum circuit simulation completed successfully",
+      });
+    } catch (error) {
+      console.error("Simulation error:", error);
+      setSimulationError(error instanceof Error ? error.message : "Unknown error occurred");
+
+      // Fallback to mock simulation if the API call fails
+      const mockResults = mockSimulation(circuit, qubits);
+      setSimulationResults(mockResults);
+
+      toast.error("Simulation API error", {
+        description: "Using mock results instead. Check if the backend is running.",
+      });
+    } finally {
+      setIsSimulating(false);
+    }
   }, [circuit, qubits]);
 
-  const generateQASM = useCallback(() => {
-    const header = 'OPENQASM 2.0;\ninclude "qelib1.inc";\n\n';
-    const qubitDeclaration = `qreg q[${qubits.length}];\ncreg c[${qubits.length}];\n\n`;
+  const generateQASM = useCallback(async () => {
+    if (circuit.gates.length === 0) {
+      toast.warning("Empty circuit", {
+        description: "Please add some gates to the circuit before generating QASM",
+      });
+      return "";
+    }
 
-    // Sort gates by position
-    const sortedGates = [...circuit.gates].sort(
-      (a, b) => a.position - b.position
-    );
+    try {
+      // Try to get QASM from the backend API
+      const qasmCode = await generateQasmFromApi(circuit, qubits);
+      return qasmCode;
+    } catch (error) {
+      console.error("QASM generation error:", error);
 
-    const gateInstructions = sortedGates
-      .map((gate) => {
-        switch (gate.type) {
-          case "h":
-            return `h q[${gate.qubitIndices[0]}];`;
-          case "x":
-            return `x q[${gate.qubitIndices[0]}];`;
-          case "y":
-            return `y q[${gate.qubitIndices[0]}];`;
-          case "z":
-            return `z q[${gate.qubitIndices[0]}];`;
-          case "cx":
-            return `cx q[${gate.qubitIndices[0]}],q[${gate.qubitIndices[1]}];`;
-          case "swap":
-            return `swap q[${gate.qubitIndices[0]}],q[${gate.qubitIndices[1]}];`;
-          case "ccx":
-            return `ccx q[${gate.qubitIndices[0]}],q[${gate.qubitIndices[1]}],q[${gate.qubitIndices[2]}];`;
-          case "rx":
-            return `rx(${gate.parameters?.theta || 0}) q[${
-              gate.qubitIndices[0]
-            }];`;
-          case "ry":
-            return `ry(${gate.parameters?.theta || 0}) q[${
-              gate.qubitIndices[0]
-            }];`;
-          case "rz":
-            return `rz(${gate.parameters?.theta || 0}) q[${
-              gate.qubitIndices[0]
-            }];`;
-          case "s":
-            return `s q[${gate.qubitIndices[0]}];`;
-          case "t":
-            return `t q[${gate.qubitIndices[0]}];`;
-          case "cswap":
-            return `cswap q[${gate.qubitIndices[0]}], q[${gate.qubitIndices[1]}], q[${gate.qubitIndices[2]}];`;
-          default:
-            return "";
-        }
-      })
-      .join("\n");
+      // Fallback to local generation if the API call fails
+      const header = 'OPENQASM 2.0;\ninclude "qelib1.inc";\n\n';
+      const qubitDeclaration = `qreg q[${qubits.length}];\ncreg c[${qubits.length}];\n\n`;
 
-    const measureInstructions = qubits
-      .map((_, i) => `measure q[${i}] -> c[${i}];`)
-      .join("\n");
+      // Sort gates by position
+      const sortedGates = [...circuit.gates].sort(
+        (a, b) => a.position - b.position
+      );
 
-    return `${header}${qubitDeclaration}${gateInstructions}\n\n${measureInstructions}`;
+      const gateInstructions = sortedGates
+        .map((gate) => {
+          switch (gate.type) {
+            case "h":
+              return `h q[${gate.qubitIndices[0]}];`;
+            case "x":
+              return `x q[${gate.qubitIndices[0]}];`;
+            case "y":
+              return `y q[${gate.qubitIndices[0]}];`;
+            case "z":
+              return `z q[${gate.qubitIndices[0]}];`;
+            case "cx":
+              return `cx q[${gate.qubitIndices[0]}],q[${gate.qubitIndices[1]}];`;
+            case "swap":
+              return `swap q[${gate.qubitIndices[0]}],q[${gate.qubitIndices[1]}];`;
+            case "ccx":
+              return `ccx q[${gate.qubitIndices[0]}],q[${gate.qubitIndices[1]}],q[${gate.qubitIndices[2]}];`;
+            case "rx":
+              return `rx(${gate.parameters?.theta || 0}) q[${gate.qubitIndices[0]
+                }];`;
+            case "ry":
+              return `ry(${gate.parameters?.theta || 0}) q[${gate.qubitIndices[0]
+                }];`;
+            case "rz":
+              return `rz(${gate.parameters?.theta || 0}) q[${gate.qubitIndices[0]
+                }];`;
+            case "s":
+              return `s q[${gate.qubitIndices[0]}];`;
+            case "t":
+              return `t q[${gate.qubitIndices[0]}];`;
+            case "cswap":
+              return `cswap q[${gate.qubitIndices[0]}], q[${gate.qubitIndices[1]}], q[${gate.qubitIndices[2]}];`;
+            default:
+              return "";
+          }
+        })
+        .join("\n");
+
+      const measureInstructions = qubits
+        .map((_, i) => `measure q[${i}] -> c[${i}];`)
+        .join("\n");
+
+      toast.warning("QASM API error", {
+        description: "Using local QASM generation instead. Check if the backend is running.",
+      });
+
+      return `${header}${qubitDeclaration}${gateInstructions}\n\n${measureInstructions}`;
+    }
   }, [circuit, qubits]);
 
   const clearCircuit = useCallback(() => {
@@ -237,6 +287,8 @@ export function useCircuitState() {
     circuit,
     selectedGate,
     simulationResults,
+    isSimulating,
+    simulationError,
     setSelectedGate,
     addQubit,
     removeQubit,
