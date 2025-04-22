@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BisQit - Quantum Circuit Simulator
 
-## Getting Started
+A web-based quantum circuit simulator with a React frontend and FastAPI backend powered by Qiskit.
 
-First, run the development server:
+## Project Structure
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+The project is structured as follows:
+- `frontend/`: React-based frontend for the quantum circuit interface
+- `backend/`: FastAPI-based backend for quantum circuit simulation using Qiskit
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Interactive quantum circuit builder
+- Support for standard quantum gates (H, X, Y, Z, S, T, CNOT, SWAP, etc.)
+- Quantum circuit simulation using Qiskit
+- Real-time visualization of quantum states and measurement probabilities
+- QASM code export
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Backend
 
-## Learn More
+The backend is built with FastAPI and Qiskit, providing REST API endpoints for:
+- Quantum circuit simulation
+- Conversion to QASM representation
 
-To learn more about Next.js, take a look at the following resources:
+### Backend Setup
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Navigate to the backend directory:
+   ```
+   cd backend
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. Create and activate a virtual environment (optional but recommended):
+   ```
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-## Deploy on Vercel
+3. Install dependencies:
+   ```
+   pip install -r requirements.txt
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+4. Start the FastAPI server:
+   ```
+   uvicorn main:app --reload
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   The API will be available at http://localhost:8000 with auto-generated documentation at http://localhost:8000/docs
+
+## Frontend
+
+The frontend is built with React and provides an interactive user interface for building and simulating quantum circuits.
+
+### Frontend Setup
+
+1. Navigate to the frontend directory:
+   ```
+   cd frontend
+   ```
+
+2. Install dependencies:
+   ```
+   npm install
+   ```
+
+3. Start the development server:
+   ```
+   npm start
+   ```
+
+   The application will be available at http://localhost:3000
+
+## Using the Application
+
+1. Start both the backend and frontend servers
+2. Use the frontend interface to build quantum circuits by adding gates
+3. Run simulations to see the quantum state and measurement probabilities
+4. Export your circuit to QASM format if needed
+
+## Technologies Used
+
+- **Frontend**: React, JavaScript
+- **Backend**: FastAPI, Python
+- **Quantum Simulation**: Qiskit
+- **API Communication**: REST API
