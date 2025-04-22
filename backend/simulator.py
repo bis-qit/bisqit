@@ -13,6 +13,18 @@ from models import Gate, Complex, BlochSphereCoordinates, QubitState, Simulation
 logger = logging.getLogger("bisqit.simulator")
 
 
+def gen_perm(qubit_count: int):
+    n = 1 << qubit_count
+    perm = [0] * n
+    for i in range(n):
+        num = 0
+        for j in range(qubit_count):
+            if (i & (1 << j)):
+                num += (1 << (qubit_count-1-j))
+        perm[i] = num
+    return perm
+
+
 def simulate_circuit(gates: List[Gate], qubit_count: int, shots: int = 1024, qasm_code: str = None) -> SimulationResults:
     """
     Simulates a quantum circuit using Qiskit.
@@ -57,13 +69,16 @@ def simulate_circuit(gates: List[Gate], qubit_count: int, shots: int = 1024, qas
         try:
             logger.info("Executing statevector simulation")
             simulator = Aer.get_backend('statevector_simulator')
-            # Remove this line which causes the duplicate key error
-            # qc.save_statevector()
-            
+
             # Use transpiled circuit and run with correct configuration
             transpiled_qc = transpile(qc, simulator)
             result = simulator.run(transpiled_qc).result()
-            statevector = result.get_statevector()
+            _state = result.get_statevector().data
+            p = gen_perm(qubit_count)
+            state = [0]*(1 << qubit_count)
+            for i in range(1 << qubit_count):
+                state[i] = _state[p[i]]
+            statevector = Statevector(state)
 
             if statevector is None:
                 raise ValueError("Simulation produced no statevector result")
