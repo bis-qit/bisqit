@@ -6,13 +6,49 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProbabilityChart from "./ProbabilityChart";
 import StateVectorDisplay from "./StateVectorDisplay";
 import BlochSphereVisualization from "./BlochSphereVisualization";
-import { Download } from "lucide-react";
+import { Download, Loader2 } from "lucide-react";
 
 interface SimulationResultsProps {
   results: SimResults | null;
+  isLoading?: boolean;
+  error?: string | null;
 }
 
-export default function SimulationResults({ results }: SimulationResultsProps) {
+export default function SimulationResults({
+  results,
+  isLoading = false,
+  error = null
+}: SimulationResultsProps) {
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-10 border rounded-lg h-[400px]">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+          <h3 className="text-lg font-medium">Running Simulation</h3>
+          <p className="text-muted-foreground">
+            Calculating quantum states and probabilities...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center p-10 border rounded-lg h-[400px] border-red-200 bg-red-50">
+        <div className="text-center">
+          <h3 className="text-lg font-medium text-red-700">Simulation Error</h3>
+          <p className="text-red-600 max-w-md mx-auto mt-2">
+            {error}
+          </p>
+          <p className="text-muted-foreground mt-4">
+            The displayed results are approximations. Check if the backend is running.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (!results) {
     return (
       <div className="flex items-center justify-center p-10 border rounded-lg h-[400px]">

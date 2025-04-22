@@ -18,9 +18,11 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { findGateDefinition } from "@/lib/utils";
+import { toast } from "sonner";
 
 export default function CircuitDesigner() {
   const [isQasmDialogOpen, setIsQasmDialogOpen] = useState(false);
+  const [qasmCode, setQasmCode] = useState("");
   const [activeDragData, setActiveDragData] = useState<{
     id: string;
     gateType?: string;
@@ -32,6 +34,8 @@ export default function CircuitDesigner() {
     qubits,
     selectedGate,
     simulationResults,
+    isSimulating,
+    simulationError,
     addQubit,
     removeQubit,
     setSelectedGate,
@@ -40,6 +44,7 @@ export default function CircuitDesigner() {
     moveGate,
     runSimulation,
     generateQASM,
+    clearCircuit,
   } = useCircuitState();
 
   // Track which item is being dragged
@@ -148,11 +153,15 @@ export default function CircuitDesigner() {
     setActiveTab("simulation");
   };
 
-  const clearCircuit = () => {
-    const gatesToRemove = [...circuit.gates];
-    gatesToRemove.forEach((gate) => {
-      removeGate(gate.id);
-    });
+  const handleExportQASM = async () => {
+    try {
+      const qasmCode = await generateQASM();
+      setQasmCode(qasmCode);
+      setIsQasmDialogOpen(true);
+    } catch (error) {
+      console.error("Error generating QASM:", error);
+      toast.error("Failed to generate QASM code");
+    }
   };
 
   return (
@@ -204,7 +213,7 @@ export default function CircuitDesigner() {
                   onAddQubit={addQubit}
                   onRemoveQubit={removeQubit}
                   onRunSimulation={handleRunSimulation} // This passes our modified function
-                  onExportQASM={() => setIsQasmDialogOpen(true)}
+                  onExportQASM={handleExportQASM}
                   onClearCircuit={clearCircuit}
                 />
               </div>
@@ -215,14 +224,18 @@ export default function CircuitDesigner() {
             value="simulation"
             className="mt-4 flex-1 h-[calc(100vh-200px)]"
           >
-            <SimulationResults results={simulationResults} />
+            <SimulationResults
+              results={simulationResults}
+              isLoading={isSimulating}
+              error={simulationError}
+            />
           </TabsContent>
         </Tabs>
 
         <QasmExportDialog
           isOpen={isQasmDialogOpen}
           setIsOpen={setIsQasmDialogOpen}
-          qasmCode={generateQASM()}
+          qasmCode={qasmCode}
         />
 
         {/* Drag Overlay - Shows visual feedback during dragging */}
@@ -259,109 +272,101 @@ export default function CircuitDesigner() {
       return <div className="font-bold">{gateDefinition.symbol}</div>;
     }
 
-    // Enhanced visualization for multi-qubit gates
-    if (gateDefinition.category === "multi") {
-      switch (gateType) {
-        case "cx":
-          return (
-            <div className="w-full h-full relative">
-              {/* Control dot */}
-              <div
-                className="absolute w-3 h-3 rounded-full bg-orange-700 left-1/2 transform -translate-x-1/2"
-                style={{ top: "20%" }}
-              ></div>
-              {/* Vertical line connecting control to target */}
-              <div className="absolute w-[2px] h-[50%] bg-orange-700 left-1/2 transform -translate-x-1/2 top-[20%]"></div>
-              {/* Target X */}
-              <div
-                className="absolute w-5 h-5 rounded-full border-2 border-orange-700 flex items-center justify-center left-1/2 transform -translate-x-1/2"
-                style={{ top: "70%" }}
-              >
-                <span className="font-bold text-orange-700 text-xs">X</span>
-              </div>
+    switch (gateDefinition.type) {
+      case "cx":
+        return (
+          <div className="w-full h-full relative">
+            {/* Control dot */}
+            <div
+              className="absolute w-3 h-3 rounded-full bg-orange-700 left-1/2 transform -translate-x-1/2"
+              style={{ top: "20%" }}
+            ></div>
+            {/* Vertical line connecting control to target */}
+            <div className="absolute w-[2px] h-[50%] bg-orange-700 left-1/2 transform -translate-x-1/2 top-[20%]"></div>
+            {/* Target X */}
+            <div
+              className="absolute w-5 h-5 rounded-full border-2 border-orange-700 flex items-center justify-center left-1/2 transform -translate-x-1/2"
+              style={{ top: "70%" }}
+            >
+              <span className="font-bold text-orange-700 text-xs">X</span>
             </div>
-          );
-
-        case "swap":
-          return (
-            <div className="w-full h-full relative">
-              {/* Top X */}
-              <div
-                className="absolute font-bold text-cyan-700 text-xl left-1/2 transform -translate-x-1/2"
-                style={{ top: "13%" }}
-              >
-                ×
-              </div>
-              {/* Vertical line connecting Xs */}
-              <div className="absolute w-[2px] h-[50%] bg-cyan-700 left-1/2 transform -translate-x-1/2 top-[25%]"></div>
-              {/* Bottom X */}
-              <div
-                className="absolute font-bold text-cyan-700 text-xl left-1/2 transform -translate-x-1/2"
-                style={{ top: "63%" }}
-              >
-                ×
-              </div>
+          </div>
+        );
+      case "swap":
+        return (
+          <div className="w-full h-full relative">
+            {/* Top X */}
+            <div
+              className="absolute font-bold text-cyan-700 text-xl left-1/2 transform -translate-x-1/2"
+              style={{ top: "13%" }}
+            >
+              ×
             </div>
-          );
-
-        case "ccx":
-          return (
-            <div className="w-full h-full relative">
-              {/* First control dot */}
-              <div
-                className="absolute w-3 h-3 rounded-full bg-amber-700 left-1/2 transform -translate-x-1/2"
-                style={{ top: "13%" }}
-              ></div>
-              {/* Vertical line connecting all elements */}
-              <div className="absolute w-[2px] h-[64%] bg-amber-700 left-1/2 transform -translate-x-1/2 top-[15%]"></div>
-              {/* Second control dot */}
-              <div
-                className="absolute w-3 h-3 rounded-full bg-amber-700 left-1/2 transform -translate-x-1/2"
-                style={{ top: "47%" }}
-              ></div>
-              {/* Target X */}
-              <div
-                className="absolute w-5 h-5 rounded-full border-2 border-amber-700 flex items-center justify-center left-1/2 transform -translate-x-1/2"
-                style={{ top: "78%" }}
-              >
-                <span className="font-bold text-amber-700 text-xs">X</span>
-              </div>
+            {/* Vertical line connecting Xs */}
+            <div className="absolute w-[2px] h-[50%] bg-cyan-700 left-1/2 transform -translate-x-1/2 top-[25%]"></div>
+            {/* Bottom X */}
+            <div
+              className="absolute font-bold text-cyan-700 text-xl left-1/2 transform -translate-x-1/2"
+              style={{ top: "63%" }}
+            >
+              ×
             </div>
-          );
-          
-          case "cswap":
-            return (
-              <div className="w-full h-full relative">
-              {/* First control dot */}
-              <div
-                className="absolute w-3 h-3 rounded-full bg-amber-700 left-1/2 transform -translate-x-1/2"
-                style={{ top: "13%" }}
-              ></div>
-              {/* Vertical line connecting all elements */}
-              <div className="absolute w-[2px] h-[33%] bg-amber-700 left-1/2 transform -translate-x-1/2 top-[15%]"></div>
-              {/* First X */}
-              <div
-                className="absolute w-5 h-5 rounded-full border-2 border-amber-700 flex items-center justify-center left-1/2 transform -translate-x-1/2"
-                style={{ top: "48%" }}
-              >
-                <span className="font-bold text-amber-700 text-xs">X</span>
-              </div>
-              <div className="absolute w-[2px] h-[20%] bg-amber-700 left-1/2 transform -translate-x-1/2 top-[58%]"></div>
-              {/* Second X */}
-              <div
-                className="absolute w-5 h-5 rounded-full border-2 border-amber-700 flex items-center justify-center left-1/2 transform -translate-x-1/2"
-                style={{ top: "78%" }}
-              >
-                <span className="font-bold text-amber-700 text-xs">X</span>
-              </div>
+          </div>
+        );
+      case "ccx":
+        return (
+          <div className="w-full h-full relative">
+            {/* First control dot */}
+            <div
+              className="absolute w-3 h-3 rounded-full bg-amber-700 left-1/2 transform -translate-x-1/2"
+              style={{ top: "13%" }}
+            ></div>
+            {/* Vertical line connecting all elements */}
+            <div className="absolute w-[2px] h-[64%] bg-amber-700 left-1/2 transform -translate-x-1/2 top-[15%]"></div>
+            {/* Second control dot */}
+            <div
+              className="absolute w-3 h-3 rounded-full bg-amber-700 left-1/2 transform -translate-x-1/2"
+              style={{ top: "47%" }}
+            ></div>
+            {/* Target X */}
+            <div
+              className="absolute w-5 h-5 rounded-full border-2 border-amber-700 flex items-center justify-center left-1/2 transform -translate-x-1/2"
+              style={{ top: "78%" }}
+            >
+              <span className="font-bold text-amber-700 text-xs">X</span>
             </div>
-            );
-        default:
-          return <div className="font-bold">{gateDefinition.symbol}</div>;
-      }
+          </div>
+        );
+      case "cswap":
+        return (
+          <div className="w-full h-full relative">
+            {/* First control dot */}
+            <div
+              className="absolute w-3 h-3 rounded-full bg-amber-700 left-1/2 transform -translate-x-1/2"
+              style={{ top: "13%" }}
+            ></div>
+            {/* Vertical line connecting all elements */}
+            <div className="absolute w-[2px] h-[33%] bg-amber-700 left-1/2 transform -translate-x-1/2 top-[15%]"></div>
+            {/* First X */}
+            <div
+              className="absolute w-5 h-5 rounded-full border-2 border-amber-700 flex items-center justify-center left-1/2 transform -translate-x-1/2"
+              style={{ top: "48%" }}
+            >
+              <span className="font-bold text-amber-700 text-xs">X</span>
+            </div>
+            <div className="absolute w-[2px] h-[20%] bg-amber-700 left-1/2 transform -translate-x-1/2 top-[58%]"></div>
+            {/* Second X */}
+            <div
+              className="absolute w-5 h-5 rounded-full border-2 border-amber-700 flex items-center justify-center left-1/2 transform -translate-x-1/2"
+              style={{ top: "78%" }}
+            >
+              <span className="font-bold text-amber-700 text-xs">X</span>
+            </div>
+          </div>
+        );
+      default:
+        return <div className="font-bold">{gateDefinition.symbol}</div>;
     }
-
-    return <div className="font-bold">{gateDefinition.symbol}</div>;
   }
 
   function getGateColor(gateType?: string): string {
@@ -389,7 +394,7 @@ export default function CircuitDesigner() {
       }
 
       // Calculate height based on number of qubits and cell height
-      // We use 40px as default cell height
+      // We use 40px as default cell height for single-qubit gates
       return `${qubitCount * 60}px`;
     }
     return "60px"; // Default height
