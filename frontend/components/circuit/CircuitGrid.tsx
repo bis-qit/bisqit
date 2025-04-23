@@ -66,11 +66,6 @@ export default function CircuitGrid({
           </div>
         ))}
 
-        {/* Measurement dashed line */}
-        <div
-          className="absolute top-0 bottom-0 border-l-2 border-dashed border-gray-500"
-          style={{ left: `${cellWidth * (gridCells - 2) + 25}px` }}
-        />
       </div>
 
       {/* Gates */}

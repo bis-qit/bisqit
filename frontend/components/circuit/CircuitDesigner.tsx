@@ -230,9 +230,9 @@ export default function CircuitDesigner() {
           </TabsList>
 
           <TabsContent value="design" className="mt-4 flex-1">
-            <div className="flex flex-col lg:flex-row gap-4 h-full min-h-screen">
+            <div className="flex flex-col lg:flex-row gap-4 h-full">
               {/* Left sidebar - Gate Palette */}
-              <div className="w-full lg:w-80 h-auto min-h-[calc(100vh-240px)] p-4 border rounded-lg">
+              <div className="w-full lg:w-80 h-auto border rounded-lg p-4">
                 <GatePalette
                   onSelectGate={setSelectedGate}
                   selectedGate={selectedGate}
@@ -240,7 +240,7 @@ export default function CircuitDesigner() {
               </div>
 
               {/* Main area - Circuit Grid */}
-              <div className="flex-1 border rounded-lg p-4 min-h-[500px] overflow-hidden">
+              <div className="flex-1 border rounded-lg p-4 overflow-hidden">
                 <div className="overflow-x-scroll hide-scrollbar pt-4">
                   <CircuitGrid
                     qubits={qubits}
@@ -255,12 +255,12 @@ export default function CircuitDesigner() {
               </div>
 
               {/* Right sidebar - Circuit Controls */}
-              <div className="w-full lg:w-64 p-4 border rounded-lg h-full">
+              <div className="w-full lg:w-64 p-4 border rounded-lg">
                 <CircuitControls
                   qubitCount={qubits.length}
                   onAddQubit={addQubit}
                   onRemoveQubit={removeQubit}
-                  onRunSimulation={handleRunSimulation} // This passes our modified function
+                  onRunSimulation={handleRunSimulation}
                   onExportQASM={handleExportQASM}
                   onClearCircuit={clearCircuit}
                 />

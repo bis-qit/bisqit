@@ -1,17 +1,11 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { GateType, GateDefinition } from "@/lib/types";
 import { useDraggable } from "@dnd-kit/core";
-import { DragHandleDots2Icon } from "@radix-ui/react-icons";
+// import { DragHandleDots2Icon } from "@radix-ui/react-icons";
 import { Search } from "lucide-react";
 
 // Gate definitions with their properties
@@ -22,7 +16,7 @@ const gateDefinitions: GateDefinition[] = [
     symbol: "H",
     name: "Hadamard",
     category: "single",
-    description: "Creates superposition",
+    description: "Creates superposition by transforming |0⟩ into (|0⟩ + |1⟩)/√2 and |1⟩ into (|0⟩ - |1⟩)/√2.",
     hasParameters: false,
     maxQubits: 1,
   },
@@ -31,7 +25,7 @@ const gateDefinitions: GateDefinition[] = [
     symbol: "X",
     name: "Pauli-X",
     category: "single",
-    description: "Bit flip (NOT gate)",
+    description: "Quantum equivalent of the NOT gate; flips |0⟩ to |1⟩ and vice versa",
     hasParameters: false,
     maxQubits: 1,
   },
@@ -40,7 +34,7 @@ const gateDefinitions: GateDefinition[] = [
     symbol: "Y",
     name: "Pauli-Y",
     category: "single",
-    description: "Bit and phase flip",
+    description: "Applies a bit and phase flip; rotates the qubit 180° around the Y-axis on the Bloch sphere",
     hasParameters: false,
     maxQubits: 1,
   },
@@ -49,7 +43,7 @@ const gateDefinitions: GateDefinition[] = [
     symbol: "Z",
     name: "Pauli-Z",
     category: "single",
-    description: "Phase flip",
+    description: "Applies a phase flip; leaves |0⟩ unchanged but flips the phase of |1⟩ to -|1⟩",
     hasParameters: false,
     maxQubits: 1,
   },
@@ -58,7 +52,7 @@ const gateDefinitions: GateDefinition[] = [
     symbol: "S",
     name: "Phase S",
     category: "single",
-    description: "π/2 phase rotation",
+    description: "Adds a 90° phase shift to the |1⟩ state; leaves |0⟩ unchanged.",
     hasParameters: false,
     maxQubits: 1,
   },
@@ -67,7 +61,7 @@ const gateDefinitions: GateDefinition[] = [
     symbol: "T",
     name: "Phase T",
     category: "single",
-    description: "π/4 phase rotation",
+    description: "Adds a 45° phase shift to the |1⟩ state.",
     hasParameters: false,
     maxQubits: 1,
   },
@@ -77,7 +71,7 @@ const gateDefinitions: GateDefinition[] = [
     symbol: "•─X",
     name: "CNOT",
     category: "multi",
-    description: "Controlled-X gate",
+    description: "Flips the target qubit if the control qubit is |1⟩; essential for entanglement.",
     hasParameters: false,
     maxQubits: 2,
   },
@@ -86,7 +80,7 @@ const gateDefinitions: GateDefinition[] = [
     symbol: "⨯─⨯",
     name: "SWAP",
     category: "multi",
-    description: "Swaps two qubits",
+    description: "Exchanges the states of two qubits.",
     hasParameters: false,
     maxQubits: 2,
   },
@@ -95,7 +89,7 @@ const gateDefinitions: GateDefinition[] = [
     symbol: "•─•─X",
     name: "Toffoli",
     category: "multi",
-    description: "Controlled-Controlled-X gate",
+    description: "A controlled-controlled-NOT gate; flips the target qubit only if both control qubits are |1⟩.",
     hasParameters: false,
     maxQubits: 3,
   },
@@ -104,7 +98,7 @@ const gateDefinitions: GateDefinition[] = [
     symbol: "•─⨯─⨯",
     name: "Fredkin",
     category: "multi",
-    description: "Controlled-SWAP gate",
+    description: "Swaps the states of two target qubits only if the control qubit is |1⟩.",
     hasParameters: false,
     maxQubits: 3,
   },
@@ -114,7 +108,7 @@ const gateDefinitions: GateDefinition[] = [
     symbol: "Rx",
     name: "Rotation X",
     category: "parametric",
-    description: "Rotation around X-axis",
+    description: "Rotates the qubit state around the X-axis by a specified angle.",
     hasParameters: true,
     maxQubits: 1,
   },
@@ -123,7 +117,7 @@ const gateDefinitions: GateDefinition[] = [
     symbol: "Ry",
     name: "Rotation Y",
     category: "parametric",
-    description: "Rotation around Y-axis",
+    description: "Rotates the qubit state around the Y-axis by a specified angle.",
     hasParameters: true,
     maxQubits: 1,
   },
@@ -132,7 +126,7 @@ const gateDefinitions: GateDefinition[] = [
     symbol: "Rz",
     name: "Rotation Z",
     category: "parametric",
-    description: "Rotation around Z-axis",
+    description: "Rotates the qubit state around the Z-axis by a specified angle.",
     hasParameters: true,
     maxQubits: 1,
   },
@@ -296,6 +290,9 @@ interface GateButtonProps {
 }
 
 function GateButton({ gate, isSelected, onClick, color }: GateButtonProps) {
+  // Add state to track whether info is shown
+  const [showInfo, setShowInfo] = useState(false);
+  
   // Make the gate button draggable
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `palette-${gate.type}`,
@@ -307,55 +304,67 @@ function GateButton({ gate, isSelected, onClick, color }: GateButtonProps) {
   });
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="relative">
-            <Button
-              ref={setNodeRef}
-              {...(isSelected ? { ...listeners, ...attributes } : {})}
-              variant="outline"
-              className={`w-full h-12 transition-all duration-150 ${
-                isSelected
-                  ? "ring-2 ring-red-500 shadow-md transform scale-[1.02] border-2 border-red-500"
-                  : "hover:scale-[1.01] hover:shadow-sm"
-              }`}
-              onClick={onClick}
-              style={{
-                backgroundColor: color,
-                // Add a subtle brightness change when selected
-                filter: isSelected ? "brightness(1.1)" : "brightness(1)",
-              }}
-            >
-              <div className="flex flex-col items-center justify-center">
-                <span className="text-md font-bold">{gate.symbol}</span>
-                <span className="text-xs">{gate.name}</span>
-              </div>
-            </Button>
+    <div className="relative">
+      <Button
+        ref={setNodeRef}
+        {...(isSelected ? { ...listeners, ...attributes } : {})}
+        variant="outline"
+        className={`w-full h-12 transition-all duration-150 ${
+          isSelected
+            ? "ring-2 ring-red-500 shadow-md transform scale-[1.02] border-2 border-red-500"
+            : "hover:scale-[1.01] hover:shadow-sm"
+        }`}
+        onClick={onClick}
+        style={{
+          backgroundColor: color,
+          // Add a subtle brightness change when selected
+          filter: isSelected ? "brightness(1.1)" : "brightness(1)",
+        }}
+      >
+        <div className="flex flex-col items-center justify-center">
+          <span className="text-md font-bold">{gate.symbol}</span>
+          <span className="text-xs">{gate.name}</span>
+        </div>
+      </Button>
 
-            {/* Separate drag handle */}
-            <div
-              ref={setNodeRef}
-              {...attributes}
-              {...listeners}
-              className="absolute top-0 right-0 p-1 cursor-grab hover:bg-gray-200 rounded-bl-md rounded-tr-md active:cursor-grabbing"
-              style={{
-                touchAction: "none",
-                opacity: isDragging ? 0.5 : 0.8,
-                zIndex: 10,
-                background: "rgba(255,255,255,0.3)",
+      {/* Information button */}
+      <button
+        className="absolute top-1 right-1 w-4 h-4 rounded-full bg-white text-gray-700 flex items-center justify-center shadow-sm hover:bg-gray-50"
+        onClick={(e) => {
+          e.stopPropagation(); // Prevent triggering the parent button's onClick
+          setShowInfo(!showInfo);
+        }}
+      >
+        <span className="text-xs font-semibold">i</span>
+      </button>
+      
+      {/* Information box that appears when info button is clicked */}
+      {showInfo && (
+        <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-white rounded-md shadow-md p-3 border border-gray-200">
+          <div className="flex justify-between items-center mb-1">
+            <h4 className="font-semibold text-sm">{gate.name}</h4>
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowInfo(false);
               }}
+              className="text-gray-500 hover:text-gray-700"
             >
-              <DragHandleDots2Icon className="h-4 w-4" />
-            </div>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
           </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{gate.description}</p>
-          {gate.maxQubits > 1 && <p>Requires {gate.maxQubits} qubits</p>}
-          {gate.hasParameters && <p>Has parameters</p>}
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+          <p className="text-xs text-gray-600 mb-1">{gate.description}</p>
+          {gate.maxQubits > 1 && (
+            <p className="text-xs text-gray-600">Requires {gate.maxQubits} qubits</p>
+          )}
+          {gate.hasParameters && (
+            <p className="text-xs text-gray-600">Has parameters</p>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
