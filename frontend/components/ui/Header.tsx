@@ -1,8 +1,29 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation"; // Add this import
+import { useAuth } from "@/context/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { User } from "lucide-react";
 
 export default function Header() {
+  const router = useRouter(); 
+  const { user, isAuthenticated, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    router.push("/login");
+    // You might want to redirect after logout
+    // window.location.href = "/";
+  };
+
   return (
     <div
       className="w-full py-4 border-b"
@@ -24,7 +45,7 @@ export default function Header() {
           <h1 className="text-3xl font-bold text-black">BisQit</h1>
         </div>
         {/* Add this new div for auth buttons */}
-        <div className="flex items-center gap-3">
+        {/* <div className="flex items-center gap-3">
           <Link href="/login">
             <Button
               variant="outline"
@@ -38,10 +59,55 @@ export default function Header() {
               Register
             </Button>
           </Link>
-        </div>
+        </div> */}
         {/* <h2 className="text-xl font-medium text-black hidden sm:block">
           Basic Interactive Simulator for Quantum Information & Technology
         </h2> */}
+
+        {/* Authentication UI */}
+        <div className="flex items-center gap-3">
+          {isAuthenticated ? (
+            <>
+              {/* Show user menu when logged in */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="flex items-center gap-2 text-white hover:bg-[#A37CF0]/60"
+                  >
+                    <User className="h-4 w-4" />
+                    <span>{user?.username}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile">Profile</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          ) : (
+            <>
+              {/* Show login/register when logged out */}
+              <Link href="/login">
+                <Button
+                  variant="outline"
+                  className="border-white text-white hover:bg-white text-[#A37CF0]"
+                >
+                  Login
+                </Button>
+              </Link>
+              <Link href="/register" className="hidden sm:block">
+                <Button className="bg-white text-[#A37CF0] hover:bg-white/90">
+                  Register
+                </Button>
+              </Link>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

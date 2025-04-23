@@ -9,9 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Login() {
   const router = useRouter();
+  const { login } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -23,20 +25,20 @@ export default function Login() {
     setError("");
 
     try {
-      // Replace with your actual authentication logic
-      // For now, just simulate a login and redirect
-      console.log("Logging in with:", { username, password });
-      
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Redirect to homepage after login
-      router.push("/");
-    } catch (err) {
-      setError("Invalid username or password");
-    } finally {
-      setIsLoading(false);
-    }
+        // Use the login function from auth context
+        const success = await login(username, password);
+        
+        if (success) {
+          // Redirect to homepage after login
+          router.push("/");
+        } else {
+          setError("Invalid username or password");
+        }
+      } catch (err) {
+        setError("Invalid username or password");
+      } finally {
+        setIsLoading(false);
+      }
   };
 
   return (
