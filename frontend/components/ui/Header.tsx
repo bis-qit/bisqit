@@ -60,9 +60,9 @@ export default function Header() {
             </Button>
           </Link>
         </div> */}
-        {/* <h2 className="text-xl font-medium text-black hidden sm:block">
+        <h2 className="text-2xl font-bold text-black hidden sm:block">
           Basic Interactive Simulator for Quantum Information & Technology
-        </h2> */}
+        </h2>
 
         {/* Authentication UI */}
         <div className="flex items-center gap-3">

@@ -12,6 +12,7 @@ import {
 } from "@/lib/types";
 import { simulateCircuit, generateQasmFromApi } from "@/lib/api";
 import { toast } from "sonner";
+import { error } from "console";
 
 // Mock simulation function - in a real app, this would use a quantum simulation library
 const mockSimulation = (
@@ -210,12 +211,6 @@ export function useCircuitState() {
     }
 
     try {
-      // Try to get QASM from the backend API
-      const qasmCode = await generateQasmFromApi(circuit, qubits);
-      return qasmCode;
-    } catch (error) {
-      console.error("QASM generation error:", error);
-
       // Fallback to local generation if the API call fails
       const header = 'OPENQASM 2.0;\ninclude "qelib1.inc";\n\n';
       const qubitDeclaration = `qreg q[${qubits.length}];\ncreg c[${qubits.length}];\n\n`;
@@ -267,11 +262,11 @@ export function useCircuitState() {
         .map((_, i) => `measure q[${i}] -> c[${i}];`)
         .join("\n");
 
-      toast.warning("QASM API error", {
-        description: "Using local QASM generation instead. Check if the backend is running.",
-      });
 
       return `${header}${qubitDeclaration}${gateInstructions}\n\n${measureInstructions}`;
+    }
+    catch {
+
     }
   }, [circuit, qubits]);
 

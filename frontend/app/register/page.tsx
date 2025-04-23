@@ -50,7 +50,7 @@ export default function Register() {
 
   return (
     <main className="flex flex-col w-full min-h-screen" style={{ backgroundColor: "#E6E6FA" }}>
-      <Header />
+      {/* <Header /> */}
       
       <div className="flex-grow flex items-center justify-center w-full px-4 py-12">
         <Card className="w-full max-w-md shadow-lg" style={{ backgroundColor: "white" }}>
