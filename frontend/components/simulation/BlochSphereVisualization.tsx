@@ -84,19 +84,19 @@ export default function BlochSphereVisualization({
       scene.add(sprite);
     };
 
-    addAxisLabel("X", new THREE.Vector3(1.3, 0, 0), 0xff0000);
-    addAxisLabel("Y", new THREE.Vector3(0, 1.3, 0), 0x00ff00);
-    addAxisLabel("Z", new THREE.Vector3(0, 0, 1.3), 0x0000ff);
+    addAxisLabel("Y", new THREE.Vector3(1.3, 0, 0), 0xff0000);
+    addAxisLabel("Z", new THREE.Vector3(0, 1.3, 0), 0x00ff00);
+    addAxisLabel("X", new THREE.Vector3(0, 0, 1.3), 0x0000ff);
 
     // Add |0⟩ and |1⟩ markers
-    addAxisLabel("|0⟩", new THREE.Vector3(0, 0, 1.1), 0x000000);
-    addAxisLabel("|1⟩", new THREE.Vector3(0, 0, -1.1), 0x000000);
+    addAxisLabel("|0⟩", new THREE.Vector3(0, 1.1, 0), 0x000000);
+    addAxisLabel("|1⟩", new THREE.Vector3(0, -1.1, 0), 0x000000);
 
     // Add state vector marker
     const stateVector = new THREE.Vector3(
-      coordinates.x,
       coordinates.y,
-      coordinates.z
+      coordinates.z,
+      coordinates.x
     );
     stateVector.normalize();
 

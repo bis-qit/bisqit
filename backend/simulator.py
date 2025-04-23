@@ -185,7 +185,8 @@ def process_simulation_results(statevector, qubit_count: int) -> SimulationResul
         # Calculate individual qubit states
         qubit_states = []
         for q in range(qubit_count):
-            qubit_state = calculate_qubit_state(statevector, q, qubit_count)
+            qubit_state = calculate_qubit_state(
+                statevector, qubit_count - q - 1, qubit_count)
             qubit_states.append(qubit_state)
 
         return SimulationResults(
@@ -219,9 +220,9 @@ def calculate_qubit_state(statevector, qubit_index: int, qubit_count: int) -> Qu
                         np.conj(statevector[j])
 
         # Calculate Bloch sphere coordinates
-        x = 2 * np.real(rho[0, 1])
+        x = 2 * np.real(rho[1, 0])
         y = 2 * np.imag(rho[1, 0])
-        z = np.real(rho[0, 0] - rho[1, 1])
+        z = np.real(rho[0, 0]) * 2 - 1
 
         # Calculate probabilities for |0⟩ and |1⟩
         prob_0 = float(np.real(rho[0, 0]))
@@ -268,9 +269,9 @@ def calculate_qubit_state(statevector, qubit_index: int, qubit_count: int) -> Qu
         # Return a default state in case of error
         return QubitState(
             stateVector=[
-                Complex(re=1.0, im=0.0, magnitude=1.0, phase=0.0),
-                Complex(re=0.0, im=0.0, magnitude=0.0, phase=0.0)
+                Complex(re=0.737, im=0.0, magnitude=0.737, phase=0.0),
+                Complex(re=0.0, im=0.737, magnitude=0.737, phase=90.0)
             ],
-            probability=[1.0, 0.0],
-            blochSphereCoords=BlochSphereCoordinates(x=0.0, y=0.0, z=1.0)
+            probability=[0.5, 0.5],
+            blochSphereCoords=BlochSphereCoordinates(x=0.5, y=0.5, z=0.5)
         )
