@@ -66,11 +66,14 @@ export default function CircuitControls({
 
       <Card style={{ backgroundColor: "#A37CF0" }}>
         <CardHeader>
-          <CardTitle>Circuit Controls</CardTitle>
+          <CardTitle className="text-lg">Circuit Controls</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-4">
             <div>
+            <p className="text-base font-semibold mb-4 qubits-text">
+              Qubits: {qubitCount}
+            </p>
               <div className="flex flex-col gap-2">
                 <Button
                   // variant="outline"

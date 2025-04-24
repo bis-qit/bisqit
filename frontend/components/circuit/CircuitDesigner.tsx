@@ -246,7 +246,7 @@ export default function CircuitDesigner({ initialCircuit, initialQubits }: Circu
           <TabsContent value="design" className="mt-4 flex-1">
             <div className="flex flex-col lg:flex-row gap-4 h-full">
               {/* Left sidebar - Gate Palette */}
-              <div className="w-full lg:w-80 h-auto border rounded-lg p-4">
+              <div className="w-full lg:w-80 border rounded-lg p-4 flex flex-col min-h-[500px]">
                 <GatePalette
                   onSelectGate={setSelectedGate}
                   selectedGate={selectedGate}
@@ -255,7 +255,7 @@ export default function CircuitDesigner({ initialCircuit, initialQubits }: Circu
 
               {/* Main area - Circuit Grid */}
               <div className="flex-1 border rounded-lg p-4 overflow-hidden">
-                <div className="overflow-x-scroll hide-scrollbar pt-4">
+                <div className="overflow-x-scroll hide-scrollbar pt-4 pb-4">
                   <CircuitGrid
                     qubits={qubits}
                     circuit={circuit}

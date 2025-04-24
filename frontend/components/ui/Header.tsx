@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation"; // Add this import
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import {
   DropdownMenu,
@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User } from "lucide-react";
+import { User, HelpCircle } from "lucide-react";
 
 export default function Header() {
   const router = useRouter();
@@ -44,28 +44,23 @@ export default function Header() {
           </div>
           <h1 className="text-3xl font-bold text-black">BisQit</h1>
         </div>
-        {/* Add this new div for auth buttons */}
-        {/* <div className="flex items-center gap-3">
-          <Link href="/login">
-            <Button
-              variant="outline"
-              className="border-[#A37CF0] text-[#A37CF0] hover:bg-[#A37CF0]/10"
-            >
-              Login
-            </Button>
-          </Link>
-          <Link href="/register" className="hidden sm:block">
-            <Button className="bg-white text-[#A37CF0] hover:bg-white/90">
-              Register
-            </Button>
-          </Link>
-        </div> */}
         <h2 className="text-2xl font-bold text-black hidden sm:block">
           Basic Interactive Simulator for Quantum Information & Technology
         </h2>
 
         {/* Authentication UI */}
         <div className="flex items-center gap-3">
+          {/* Help Button */}
+          <Link href="/help">
+            <Button
+              variant="ghost"
+              className="flex items-center justify-center text-white hover:bg-[#A37CF0]/60 w-10 h-10 rounded-full"
+              title="Help"
+            >
+              <HelpCircle className="h-5 w-5" />
+            </Button>
+          </Link>
+
           {isAuthenticated ? (
             <>
               {/* Show user menu when logged in */}
@@ -80,9 +75,6 @@ export default function Header() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  {/* <DropdownMenuItem asChild>
-                    <Link href="/dashboard">Dashboard</Link>
-                  </DropdownMenuItem> */}
                   <DropdownMenuItem onClick={handleLogout}>
                     Logout
                   </DropdownMenuItem>
