@@ -1,11 +1,34 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../context/AuthContext';
 
-export default function Login() {
+export default function LoginPage() {
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-center items-center min-h-[80vh]">
+        <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md dark:bg-gray-800">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold">Sign In to BiSQIT</h1>
+            <p className="mt-2 text-gray-600 dark:text-gray-400">
+              Enter your credentials to access your account
+            </p>
+          </div>
+
+          {/* Wrap the part that uses useSearchParams in Suspense */}
+          <Suspense fallback={<div>Loading...</div>}>
+            <LoginForm />
+          </Suspense>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Create a separate component that uses useSearchParams
+function LoginForm() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');

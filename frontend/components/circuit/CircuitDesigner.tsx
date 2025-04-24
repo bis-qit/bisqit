@@ -204,7 +204,7 @@ export default function CircuitDesigner() {
   const handleExportQASM = async () => {
     try {
       const qasmCode = await generateQASM();
-      setQasmCode(qasmCode);
+      setQasmCode(qasmCode || ""); // Add fallback to empty string
       setIsQasmDialogOpen(true);
     } catch (error) {
       console.error("Error generating QASM:", error);
