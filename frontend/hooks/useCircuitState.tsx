@@ -92,6 +92,12 @@ export function useCircuitState() {
   const [isSimulating, setIsSimulating] = useState(false);
   const [simulationError, setSimulationError] = useState<string | null>(null);
 
+  // Initialize circuit with saved data
+  const initializeCircuit = useCallback((savedCircuit: Circuit, savedQubits: Qubit[]) => {
+    setCircuit(savedCircuit);
+    setQubits(savedQubits);
+  }, []);
+
   // Circuit manipulation functions
   const addQubit = useCallback(() => {
     setQubits((prev) => [...prev, { id: uuidv4(), index: prev.length }]);
@@ -302,5 +308,6 @@ export function useCircuitState() {
     generateQASM,
     clearCircuit,
     addGate,
+    initializeCircuit,
   };
 }

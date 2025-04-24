@@ -84,7 +84,7 @@ def root():
     }
 
 
-@app.post("/simulate", response_model=SimulationResults)
+@app.post(f"{settings.API_V1_STR}/simulate", response_model=SimulationResults)
 def simulate_circuit_endpoint(request: SimulationRequest):
     """Simulate a quantum circuit and return the results"""
     try:
@@ -106,7 +106,7 @@ def simulate_circuit_endpoint(request: SimulationRequest):
             status_code=500, detail=f"Simulation error: {str(e)}")
 
 
-@app.post("/convert_to_qasm")
+@app.post(f"{settings.API_V1_STR}/convert_to_qasm")
 def convert_to_qasm(request: QasmRequest):
     """Convert a quantum circuit to QASM representation"""
     try:

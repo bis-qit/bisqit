@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional
+from typing import Optional, Dict, Any
 
 
 class UserBase(BaseModel):
@@ -21,6 +21,7 @@ class UserUpdate(BaseModel):
 class User(UserBase):
     id: int
     is_active: bool
+    saved_circuit: Optional[Dict[str, Any]] = None
 
     class Config:
         from_attributes = True
@@ -38,3 +39,8 @@ class TokenData(BaseModel):
 class LoginRequest(BaseModel):
     username: str
     password: str
+
+
+class CircuitSaveRequest(BaseModel):
+    circuit: Dict[str, Any]
+    qubits: list

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import GatePalette from "./GatePalette";
 import CircuitGrid from "./CircuitGrid";
@@ -21,9 +21,14 @@ import { v4 as uuidv4 } from "uuid";
 import ParameterDialog from "../dialogs/ParameterDialog";
 import { findGateDefinition } from "@/lib/utils";
 import { toast } from "sonner";
-import { GateType } from "@/lib/types";
+import { GateType, Circuit, Qubit } from "@/lib/types";
 
-export default function CircuitDesigner() {
+interface CircuitDesignerProps {
+  initialCircuit?: Circuit;
+  initialQubits?: Qubit[];
+}
+
+export default function CircuitDesigner({ initialCircuit, initialQubits }: CircuitDesignerProps) {
   const [isQasmDialogOpen, setIsQasmDialogOpen] = useState(false);
   const [qasmCode, setQasmCode] = useState("");
   const [activeDragData, setActiveDragData] = useState<{
@@ -49,7 +54,16 @@ export default function CircuitDesigner() {
     generateQASM,
     clearCircuit,
     addGate,
+    initializeCircuit, // Assuming this method exists in useCircuitState
   } = useCircuitState();
+
+  // Initialize circuit with saved data if available
+  useEffect(() => {
+    if (initialCircuit && initialQubits && initialQubits.length > 0) {
+      console.log("Initializing circuit with saved data:", { initialCircuit, initialQubits });
+      initializeCircuit(initialCircuit, initialQubits);
+    }
+  }, [initialCircuit, initialQubits, initializeCircuit]);
 
   const [paramDialogOpen, setParamDialogOpen] = useState(false);
   const [pendingGate, setPendingGate] = useState<{
@@ -214,11 +228,11 @@ export default function CircuitDesigner() {
 
   return (
     <DndContext
+      sensors={sensors}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      sensors={sensors}
     >
-      <div className="flex flex-col gap-4 min-h-[calc(100vh-120px)]">
+      <div className="flex flex-col p-4 h-full">
         <Tabs
           value={activeTab}
           onValueChange={setActiveTab}
@@ -255,9 +269,11 @@ export default function CircuitDesigner() {
               </div>
 
               {/* Right sidebar - Circuit Controls */}
-              <div className="w-full lg:w-64 p-4 border rounded-lg">
+              <div className="md:w-64">
                 <CircuitControls
                   qubitCount={qubits.length}
+                  qubits={qubits}
+                  circuit={circuit}
                   onAddQubit={addQubit}
                   onRemoveQubit={removeQubit}
                   onRunSimulation={handleRunSimulation}
