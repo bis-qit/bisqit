@@ -13,6 +13,7 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const router = useRouter();
   const { register } = useAuth();
 
@@ -169,12 +170,16 @@ export default function Register() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-2.5 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 font-medium transition-colors"
+                  className="w-full py-2.5 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 font-medium transition-all duration-200"
                   style={{ 
-                    background: "#A37CF0", 
+                    background: isHovered ? "#8A63D9" : "#A37CF0", 
                     color: "white",
-                    opacity: isLoading ? 0.7 : 1 
+                    opacity: isLoading ? 0.7 : 1,
+                    transform: isHovered && !isLoading ? "translateY(-1px)" : "translateY(0)",
+                    boxShadow: isHovered && !isLoading ? "0 4px 8px rgba(163, 124, 240, 0.4)" : "none"
                   }}
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
                 >
                   {isLoading ? (
                     <span className="flex items-center justify-center">
