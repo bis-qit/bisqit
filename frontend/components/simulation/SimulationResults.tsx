@@ -7,6 +7,8 @@ import ProbabilityChart from "./ProbabilityChart";
 import StateVectorDisplay from "./StateVectorDisplay";
 import BlochSphereVisualization from "./BlochSphereVisualization";
 import { Download, Loader2 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
 
 interface SimulationResultsProps {
   results: SimResults | null;
@@ -19,6 +21,8 @@ export default function SimulationResults({
   isLoading = false,
   error = null
 }: SimulationResultsProps) {
+  const { isAuthenticated } = useAuth();
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-10 border rounded-lg h-[400px]">
@@ -64,6 +68,13 @@ export default function SimulationResults({
 
   // Function to download the probability chart as PNG
   const downloadProbabilityChart = () => {
+    if (!isAuthenticated) {
+      toast.error("Authentication required", {
+        description: "Please log in to download probability charts",
+      });
+      return;
+    }
+
     const svgElement = document.querySelector(".probability-chart svg");
     if (!svgElement) return;
 
@@ -104,6 +115,12 @@ export default function SimulationResults({
   };
 
   const downloadStateVector = () => {
+    if (!isAuthenticated) {
+      toast.error("Authentication required", {
+        description: "Please log in to download state vectors",
+      });
+      return;
+    }
     // Get state vector data directly from results
     const stateVector = results.stateVector;
     if (!stateVector) return;

@@ -6,10 +6,13 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Copy, Download } from "lucide-react";
+import { Copy, Download, LogIn } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
 
 interface QasmExportDialogProps {
   isOpen: boolean;
@@ -22,7 +25,16 @@ export default function QasmExportDialog({
   setIsOpen,
   qasmCode,
 }: QasmExportDialogProps) {
+  const { isAuthenticated } = useAuth();
+
   const handleCopyToClipboard = async () => {
+    if (!isAuthenticated) {
+      toast.error("Authentication required", {
+        description: "Please log in to copy QASM code to clipboard",
+      });
+      return;
+    }
+
     try {
       await navigator.clipboard.writeText(qasmCode);
       toast.success("Copied to clipboard", {
@@ -36,6 +48,13 @@ export default function QasmExportDialog({
   };
 
   const handleDownload = () => {
+    if (!isAuthenticated) {
+      toast.error("Authentication required", {
+        description: "Please log in to download QASM code",
+      });
+      return;
+    }
+
     const blob = new Blob([qasmCode], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -66,12 +85,44 @@ export default function QasmExportDialog({
             {qasmCode}
           </pre>
 
+          {!isAuthenticated && (
+            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 text-sm">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <LogIn className="h-5 w-5 text-amber-500" />
+                </div>
+                <div className="ml-3">
+                  <p className="text-amber-700">
+                    You need to be logged in to download or copy this QASM code.
+                  </p>
+                  <p className="mt-2">
+                    <Link href="/login" className="text-amber-700 font-medium underline">
+                      Log in
+                    </Link>{" "}
+                    or{" "}
+                    <Link href="/register" className="text-amber-700 font-medium underline">
+                      register
+                    </Link>{" "}
+                    to use this feature.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={handleCopyToClipboard}>
+            <Button 
+              variant="outline" 
+              onClick={handleCopyToClipboard}
+              className={!isAuthenticated ? "opacity-70" : ""}
+            >
               <Copy className="mr-2 h-4 w-4" />
               Copy to Clipboard
             </Button>
-            <Button onClick={handleDownload}>
+            <Button 
+              onClick={handleDownload}
+              className={!isAuthenticated ? "opacity-70" : ""}
+            >
               <Download className="mr-2 h-4 w-4" />
               Download
             </Button>

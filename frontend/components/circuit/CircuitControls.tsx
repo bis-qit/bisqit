@@ -6,6 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Plus, Minus, Play, Save, Terminal, Trash2 } from "lucide-react";
 import ClearCircuitDialog from "@/components/dialogs/ClearCircuitDialog";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
+
 interface CircuitControlsProps {
   qubitCount: number;
   onAddQubit: () => void;
@@ -24,7 +27,19 @@ export default function CircuitControls({
   onSaveCircuit = () => {},
   onClearCircuit,
 }: CircuitControlsProps) {
+  const { isAuthenticated } = useAuth();
   const [isClearDialogOpen, setIsClearDialogOpen] = useState(false);
+
+  const handleSaveCircuit = () => {
+    if (!isAuthenticated) {
+      toast.error("Authentication required", {
+        description: "Please log in to save circuits",
+      });
+      return;
+    }
+    onSaveCircuit();
+  };
+
   return (
     <div className="flex flex-col gap-4">
       {/* Add Clear Circuit Dialog */}
@@ -88,7 +103,7 @@ export default function CircuitControls({
             </Button>
             <Button
               variant="outline"
-              onClick={onSaveCircuit}
+              onClick={handleSaveCircuit}
               className="w-full transition-colors hover:bg-accent hover:text-accent-foreground hover:shadow-md"
             >
               <Save className="mr-2 w-4 h-4" /> Save Circuit
