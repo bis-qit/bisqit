@@ -66,6 +66,13 @@ This project uses PostgreSQL as the database backend for user authentication and
 
 ## Backend Setup
 
+1.  **Create and activate a virtual environment (recommended) **:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+
+
 1. **Install Python dependencies**:
 
    ```bash
@@ -77,14 +84,11 @@ This project uses PostgreSQL as the database backend for user authentication and
 
    ```bash
    cd backend
-   uvicorn main:app --reload
+   python3 server.py
    ```
 
    The backend server will run at http://localhost:8000.
 
-3. **Access API Documentation**:
-   
-   Open http://localhost:8000/docs in your browser to access the Swagger UI documentation.
 
 ## Frontend Setup
 
@@ -107,7 +111,7 @@ This project uses PostgreSQL as the database backend for user authentication and
 
    ```bash
    cd frontend
-   npm run dev
+   npm start
    ```
 
    The frontend will run at http://localhost:3000.
