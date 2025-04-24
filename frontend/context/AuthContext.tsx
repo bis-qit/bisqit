@@ -1,87 +1,167 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-interface User {
-  username: string;
-  name?: string;
-  email?: string;
-}
+// API base URL
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
-interface AuthContextType {
-  user: User | null;
+// Create context
+const AuthContext = createContext<{
   isAuthenticated: boolean;
-  login: (username: string, password: string) => Promise<boolean>;
+  user: any;
+  loading: boolean;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => void;
-}
+  register: (userData: any) => Promise<void>;
+}>({
+  isAuthenticated: false,
+  user: null,
+  loading: true,
+  login: async () => { },
+  logout: () => { },
+  register: async () => { },
+});
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Auth provider component
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-
-  // Check if user is already logged in (from local storage)
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
+    // Check if user is logged in
+    const checkUserLoggedIn = async () => {
       try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-        setIsAuthenticated(true);
+        const token = localStorage.getItem('token');
+        if (token) {
+          const response = await fetch(`${API_URL}/users/me`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          if (response.ok) {
+            const userData = await response.json();
+            setUser(userData);
+          } else {
+            localStorage.removeItem('token');
+            setUser(null);
+          }
+        }
       } catch (error) {
-        console.error("Failed to parse stored user data:", error);
-        localStorage.removeItem("user");
+        console.error('Auth check error:', error);
+        localStorage.removeItem('token');
+        setUser(null);
+      } finally {
+        setLoading(false);
       }
-    }
+    };
+
+    checkUserLoggedIn();
   }, []);
 
-  // Login function - in a real app, this would call your API
-  const login = async (
-    username: string,
-    password: string
-  ): Promise<boolean> => {
-    // This is a mock implementation. Replace with actual API call
+  // Login function
+  const login = async (username: string, password: string) => {
     try {
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      setLoading(true);
 
-      // Mock successful login
-      const userData: User = { username, name: "User Name" };
+      // Use JSON format for login, consistent with registration
+      const loginData = {
+        username,
+        password
+      };
+
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(loginData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Login failed');
+      }
+
+      const data = await response.json();
+      localStorage.setItem('token', data.access_token);
+
+      // Fetch user data
+      const userResponse = await fetch(`${API_URL}/users/me`, {
+        headers: {
+          'Authorization': `Bearer ${data.access_token}`
+        }
+      });
+
+      if (!userResponse.ok) {
+        throw new Error('Failed to fetch user data');
+      }
+
+      const userData = await userResponse.json();
       setUser(userData);
-      setIsAuthenticated(true);
-      localStorage.setItem("user", JSON.stringify(userData));
-      return true;
-    } catch (error) {
-      console.error("Login failed:", error);
-      return false;
+    } catch (error: any) {
+      console.error('Login error:', error);
+      throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
   // Logout function
   const logout = () => {
+    localStorage.removeItem('token');
     setUser(null);
-    setIsAuthenticated(false);
-    localStorage.removeItem("user");
+  };
+
+  // Register function
+  const register = async (userData: any) => {
+    try {
+      setLoading(true);
+
+      const registerData = {
+        username: userData.username,
+        email: userData.email,
+        full_name: userData.full_name,
+        password: userData.password
+      };
+
+      const response = await fetch(`${API_URL}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(registerData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Registration failed');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Registration error:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{
+      isAuthenticated: !!user,
+      user,
+      loading,
+      login,
+      logout,
+      register
+    }}>
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-}
+// Custom hook to use the auth context
+export const useAuth = () => useContext(AuthContext);

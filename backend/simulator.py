@@ -1,13 +1,12 @@
 from qiskit import QuantumCircuit, transpile
 from qiskit_aer import Aer
 from qiskit.quantum_info import Statevector
-from qiskit.visualization import plot_bloch_multivector
 import numpy as np
 import logging
-from typing import List, Dict, Optional
+from typing import List
 import traceback
 
-from models import Gate, Complex, BlochSphereCoordinates, QubitState, SimulationResults
+from models.quantum import Gate, Complex, BlochSphereCoordinates, QubitState, SimulationResults
 
 # Configure logging
 logger = logging.getLogger("bisqit.simulator")

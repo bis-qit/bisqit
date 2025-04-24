@@ -1,20 +1,24 @@
 # FastAPI and server dependencies
-fastapi==0.109.0
-uvicorn[standard]==0.25.0
-pydantic==2.5.0
-pydantic-settings==2.0.3
-python-multipart==0.0.6
+fastapi>=0.95.0
+uvicorn>=0.21.1
+pydantic>=1.10.7
+pydantic-settings==2.0.1
+pydantic[email]==2.0.3
+python-multipart>=0.0.6
 
-# Quantum computing libraries
+# Database dependencies
+sqlalchemy>=2.0.9
+psycopg2-binary>=2.9.6
+
+# Authentication and security
+python-jose>=3.3.0
+bcrypt>=4.0.1
+passlib>=1.7.4
+
+numpy>=1.24.3
 qiskit>=1.0.2
 # Use the latest compatible version of qiskit-aer
 qiskit-aer==0.17.0 --only-binary=qiskit-aer
 
-# Scientific computing
-numpy==1.26.0
-
 # For environment variable management
 python-dotenv==1.0.0
-
-# Note: Starlette is included as a dependency of FastAPI
-# Don't specify Starlette version separately as it conflicts with FastAPI's requirements

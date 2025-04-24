@@ -125,8 +125,8 @@ export function useCircuitState() {
         qubitIndices,
         parameters:
           selectedGate === "rx" ||
-          selectedGate === "ry" ||
-          selectedGate === "rz"
+            selectedGate === "ry" ||
+            selectedGate === "rz"
             ? { theta: 0 }
             : undefined,
         color,

@@ -1,13 +1,18 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
 import logging
-from typing import Dict, List, Optional, Union
+from pydantic import BaseModel
+from typing import List, Optional
+from passlib.context import CryptContext
 
-from models import Gate, SimulationResults, Circuit, Qubit
-from simulator import simulate_circuit
+from routes import auth, users
+from models.database import engine
+from models import user
+from models.quantum import SimulationResults, Circuit, Qubit
 from config import settings
+
+from simulator import simulate_circuit
 
 # Configure logging
 logging.basicConfig(
@@ -17,23 +22,35 @@ logging.basicConfig(
 )
 logger = logging.getLogger("bisqit")
 
+# Configure password hashing
+pwd_context = CryptContext(
+    schemes=["bcrypt"],
+    deprecated="auto",
+    bcrypt__rounds=12,
+    bcrypt__ident="2b"
+)
+
+# Create database tables
+user.Base.metadata.create_all(bind=engine)
+
 # Create FastAPI app
 app = FastAPI(
-    title=settings.APP_NAME,
-    version=settings.API_VERSION,
+    title=settings.PROJECT_NAME,
     description="API for simulating quantum circuits using Qiskit"
 )
 
-# Configure CORS middleware
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Request models
+# Include routers
+app.include_router(auth.router, prefix=settings.API_V1_STR)
+app.include_router(users.router, prefix=settings.API_V1_STR)
 
 
 class SimulationRequest(BaseModel):
@@ -45,8 +62,6 @@ class SimulationRequest(BaseModel):
 class QasmRequest(BaseModel):
     circuit: Circuit
     qubits: List[Qubit]
-
-# Error handling middleware
 
 
 @app.middleware("http")
@@ -62,8 +77,11 @@ async def exception_handling(request: Request, call_next):
 
 
 @app.get("/")
-def read_root():
-    return {"message": "BisQit Quantum Circuit Simulator API", "version": settings.API_VERSION}
+def root():
+    return {
+        "message": "Welcome to the Bisqit API",
+        "documentation": "/docs"
+    }
 
 
 @app.post("/simulate", response_model=SimulationResults)

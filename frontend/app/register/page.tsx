@@ -1,146 +1,172 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import Header from "@/components/ui/Header";
-import Footer from "@/components/ui/Footer";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Register() {
-  const router = useRouter();
-  const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
-//   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const router = useRouter();
+  const { register } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError("");
+    setError('');
 
+    // Validate inputs
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      setIsLoading(false);
+      setError("Passwords don't match");
       return;
     }
 
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long");
+      return;
+    }
+
+    setIsLoading(true);
+
     try {
-      // Replace with your actual registration logic
-      // For now, just simulate registration and redirect
-      console.log("Registering with:", { name, username, password });
-      
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Redirect to login page after successful registration
-      router.push("/login");
-    } catch (err) {
-      setError("Registration failed. Please try again.");
+      // Use the register function from AuthContext
+      await register({
+        username,
+        email,
+        full_name: fullName,
+        password
+      });
+
+      // Success: redirect to login page
+      router.push('/login?registered=true');
+    } catch (error: any) {
+      console.error('Registration error:', error);
+
+      // Handle error messages
+      if (error.message) {
+        setError(error.message);
+      } else {
+        setError('An error occurred during registration. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <main className="flex flex-col w-full min-h-screen" style={{ backgroundColor: "#E6E6FA" }}>
-      {/* <Header /> */}
-      
-      <div className="flex-grow flex items-center justify-center w-full px-4 py-12">
-        <Card className="w-full max-w-md shadow-lg" style={{ backgroundColor: "white" }}>
-          <CardHeader className="space-y-1" style={{ backgroundColor: "#A37CF0" }}>
-            <CardTitle className="text-2xl font-bold text-center text-white">Create an account</CardTitle>
-          </CardHeader>
-          
-          <CardContent className="pt-6">
-            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-            
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
-                <Input 
-                  id="name" 
-                  placeholder="John Doe"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
-                <Input 
-                  id="username" 
-                  placeholder="johndoe123"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                />
-              </div>
-              
-              {/* <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input 
-                  id="email" 
-                  type="email" 
-                  placeholder="name@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div> */}
-              
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input 
-                  id="password" 
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="confirm-password">Confirm Password</Label>
-                <Input 
-                  id="confirm-password" 
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                />
-              </div>
-              
-              <Button 
-                type="submit" 
-                className="w-full" 
+    <div className="flex min-h-screen flex-col items-center justify-center py-2">
+      <main className="flex w-full flex-1 flex-col items-center justify-center px-20 text-center">
+        <div className="w-full max-w-md">
+          <h1 className="text-4xl font-bold mb-8">Create an Account</h1>
+
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
+                Username
+              </label>
+              <input
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="username"
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+                Email
+              </label>
+              <input
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="email"
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="fullName">
+                Full Name
+              </label>
+              <input
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="fullName"
+                type="text"
+                placeholder="Full Name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+                Password
+              </label>
+              <input
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="password"
+                type="password"
+                placeholder="******************"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={8}
+              />
+              <p className="text-gray-500 text-xs mt-1">Must be at least 8 characters long</p>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="confirmPassword">
+                Confirm Password
+              </label>
+              <input
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="confirmPassword"
+                type="password"
+                placeholder="******************"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <button
+                className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                type="submit"
                 disabled={isLoading}
-                style={{ backgroundColor: "#A37CF0", color: "white" }}
               >
-                {isLoading ? "Creating account..." : "Register"}
-              </Button>
-            </form>
-          </CardContent>
-          
-          <CardFooter className="flex flex-col space-y-4">
-            <div className="text-sm text-center text-gray-600">
-              Already have an account?{" "}
-              <Link href="/login" className="text-purple-600 hover:underline">
-                Login instead
+                {isLoading ? 'Registering...' : 'Register'}
+              </button>
+              <Link
+                href="/login"
+                className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
+              >
+                Already have an account?
               </Link>
             </div>
-          </CardFooter>
-        </Card>
-      </div>
-      
-      <Footer />
-    </main>
+          </form>
+        </div>
+      </main>
+    </div>
   );
 }

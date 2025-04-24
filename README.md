@@ -1,85 +1,143 @@
-# BisQit - Quantum Circuit Simulator
+# Bisqit - Quantum Computing Platform
 
-A web-based quantum circuit simulator with a React frontend and FastAPI backend powered by Qiskit.
+A quantum computing simulation platform for educational and research purposes.
 
 ## Project Structure
 
-The project is structured as follows:
-- `frontend/`: React-based frontend for the quantum circuit interface
-- `backend/`: FastAPI-based backend for quantum circuit simulation using Qiskit
+- **backend/**: FastAPI backend application
+- **frontend/**: Next.js frontend application
 
 ## Features
 
-- Interactive quantum circuit builder
-- Support for standard quantum gates (H, X, Y, Z, S, T, CNOT, SWAP, etc.)
-- Quantum circuit simulation using Qiskit
-- Real-time visualization of quantum states and measurement probabilities
-- QASM code export
-
-## Backend
-
-The backend is built with FastAPI and Qiskit, providing REST API endpoints for:
 - Quantum circuit simulation
-- Conversion to QASM representation
+- User authentication (login/register)
+- Circuit visualization
+- QASM export
 
-### Backend Setup
+## Database Setup
 
-1. Navigate to the backend directory:
+This project uses PostgreSQL as the database backend for user authentication and storing quantum circuits. PostgreSQL integrates seamlessly with FastAPI through SQLAlchemy.
+
+### Setting up PostgreSQL
+
+1. **Install PostgreSQL**:
+
+   ```bash
+   # Ubuntu/Debian
+   sudo apt update
+   sudo apt install postgresql postgresql-contrib
+   
+   # MacOS (using Homebrew)
+   brew install postgresql
    ```
+
+2. **Start PostgreSQL service**:
+
+   ```bash
+   # Ubuntu/Debian
+   sudo service postgresql start
+   
+   # MacOS
+   brew services start postgresql
+   ```
+
+3. **Create a database and user**:
+
+   ```bash
+   # Log into PostgreSQL as postgres user
+   sudo -u postgres psql
+   
+   # Inside PostgreSQL shell
+   CREATE USER bisqituser WITH PASSWORD 'your_secure_password';
+   CREATE DATABASE bisqit WITH OWNER bisqituser;
+   \q
+   ```
+
+4. **Configure environment variables**:
+   
+   Copy the example .env file and update it with your database credentials:
+   
+   ```bash
    cd backend
+   cp .env.example .env
+   # Edit .env file with your database credentials
+   # DATABASE_URL=postgresql://bisqituser:your_secure_password@localhost:5432/bisqit
    ```
 
-2. Create and activate a virtual environment (optional but recommended):
-   ```
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+## Backend Setup
 
-3. Install dependencies:
-   ```
+1. **Install Python dependencies**:
+
+   ```bash
+   cd backend
    pip install -r requirements.txt
    ```
 
-4. Start the FastAPI server:
-   ```
+2. **Run the backend server**:
+
+   ```bash
+   cd backend
    uvicorn main:app --reload
    ```
 
-   The API will be available at http://localhost:8000 with auto-generated documentation at http://localhost:8000/docs
+   The backend server will run at http://localhost:8000.
 
-## Frontend
+3. **Access API Documentation**:
+   
+   Open http://localhost:8000/docs in your browser to access the Swagger UI documentation.
 
-The frontend is built with React and provides an interactive user interface for building and simulating quantum circuits.
+## Frontend Setup
 
-### Frontend Setup
+1. **Install Node.js dependencies**:
 
-1. Navigate to the frontend directory:
-   ```
+   ```bash
    cd frontend
-   ```
-
-2. Install dependencies:
-   ```
    npm install
    ```
 
-3. Start the development server:
+2. **Set environment variables**:
+
+   Create a `.env.local` file in the `frontend` directory:
+   
    ```
-   npm start
+   NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
    ```
 
-   The application will be available at http://localhost:3000
+3. **Run the development server**:
 
-## Using the Application
+   ```bash
+   cd frontend
+   npm run dev
+   ```
 
-1. Start both the backend and frontend servers
-2. Use the frontend interface to build quantum circuits by adding gates
-3. Run simulations to see the quantum state and measurement probabilities
-4. Export your circuit to QASM format if needed
+   The frontend will run at http://localhost:3000.
 
-## Technologies Used
+## Authentication System
 
-- **Frontend**: React, JavaScript
-- **Backend**: FastAPI, Python
-- **Quantum Simulation**: Qiskit
-- **API Communication**: REST API
+The project includes a complete authentication system with:
+
+- User registration
+- User login with JWT tokens
+- Protected routes requiring authentication
+- Password security with bcrypt hashing
+
+To access protected features:
+
+1. Register a new account
+2. Login with your credentials
+3. The system will automatically redirect you to the dashboard
+
+## Development
+
+### API Endpoints
+
+The backend provides the following main endpoints:
+
+- **Authentication**:
+  - `POST /api/v1/auth/register` - Register a new user
+  - `POST /api/v1/auth/login` - Login and get JWT token
+  - `GET /api/v1/users/me` - Get current user information
+
+- **Quantum Computing**:
+  - `POST /simulate` - Simulate a quantum circuit
+  - `POST /convert_to_qasm` - Convert a circuit to QASM representation

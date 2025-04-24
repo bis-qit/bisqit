@@ -14,7 +14,7 @@ import {
 import { User } from "lucide-react";
 
 export default function Header() {
-  const router = useRouter(); 
+  const router = useRouter();
   const { user, isAuthenticated, logout } = useAuth();
 
   const handleLogout = () => {
@@ -81,7 +81,7 @@ export default function Header() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem asChild>
-                    <Link href="/profile">Profile</Link>
+                    <Link href="/dashboard">Dashboard</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout}>
                     Logout

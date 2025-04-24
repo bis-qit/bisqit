@@ -1,111 +1,112 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import Header from "@/components/ui/Header";
-import Footer from "@/components/ui/Footer";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { useAuth } from "@/context/AuthContext";
+import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Login() {
-  const router = useRouter();
-  const { login } = useAuth();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { login } = useAuth();
+
+  useEffect(() => {
+    // Check if user just registered successfully
+    const registered = searchParams?.get('registered');
+    if (registered === 'true') {
+      setRegistrationSuccess(true);
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     setIsLoading(true);
-    setError("");
 
     try {
-        // Use the login function from auth context
-        const success = await login(username, password);
-        
-        if (success) {
-          // Redirect to homepage after login
-          router.push("/");
-        } else {
-          setError("Invalid username or password");
-        }
-      } catch (err) {
-        setError("Invalid username or password");
-      } finally {
-        setIsLoading(false);
-      }
+      // Use the login function from AuthContext
+      await login(username, password);
+      router.push('/'); // Redirect to dashboard on success
+    } catch (err: any) {
+      console.error('Login error:', err);
+      setError(err.message || 'Login failed. Please check your credentials.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <main className="flex flex-col w-full min-h-screen" style={{ backgroundColor: "#E6E6FA" }}>
-      {/* <Header /> */}
-      
-      <div className="flex-grow flex items-center justify-center w-full px-4 py-12">
-        <Card className="w-full max-w-md shadow-lg" style={{ backgroundColor: "white" }}>
-          <CardHeader className="space-y-1" style={{ backgroundColor: "#A37CF0" }}>
-            <CardTitle className="text-2xl font-bold text-center text-white">Welcome back</CardTitle>
-          </CardHeader>
-          
-          <CardContent className="pt-6">
-            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-            
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
-                <Input 
-                  id="username" 
-                  type="text" 
-                  placeholder="Enter your username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
-                  <Link href="/forgot-password" className="text-sm text-purple-600 hover:underline">
-                    Forgot password?
-                  </Link>
-                </div>
-                <Input 
-                  id="password" 
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-              
-              <Button 
-                type="submit" 
-                className="w-full" 
+    <div className="flex min-h-screen flex-col items-center justify-center py-2">
+      <main className="flex w-full flex-1 flex-col items-center justify-center px-20 text-center">
+        <div className="w-full max-w-md">
+          <h1 className="text-4xl font-bold mb-8">Login</h1>
+
+          {registrationSuccess && (
+            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+              Registration successful! Please log in with your credentials.
+            </div>
+          )}
+
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
+                Username
+              </label>
+              <input
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="username"
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+                Password
+              </label>
+              <input
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="password"
+                type="password"
+                placeholder="******************"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <button
+                className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                type="submit"
                 disabled={isLoading}
-                style={{ backgroundColor: "#A37CF0", color: "white" }}
               >
-                {isLoading ? "Logging in..." : "Login"}
-              </Button>
-            </form>
-          </CardContent>
-          
-          <CardFooter className="flex flex-col space-y-4">
-            <div className="text-sm text-center text-gray-600">
-              Don&apos;t have an account?{" "}
-              <Link href="/register" className="text-purple-600 hover:underline">
-                Create an account
+                {isLoading ? 'Logging in...' : 'Login'}
+              </button>
+              <Link
+                href="/register"
+                className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
+              >
+                Register
               </Link>
             </div>
-          </CardFooter>
-        </Card>
-      </div>
-      
-      <Footer />
-    </main>
+          </form>
+        </div>
+      </main>
+    </div>
   );
 }
