@@ -292,7 +292,7 @@ export default function CircuitDesigner() {
             <div
               className="shadow-md rounded-md overflow-hidden"
               style={{
-                width: "40px",
+                width: "60px",
                 height: getGateHeight(activeDragData.gateType),
                 backgroundColor: getGateColor(activeDragData.gateType),
                 display: "flex",
