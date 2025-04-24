@@ -66,7 +66,7 @@ This project uses PostgreSQL as the database backend for user authentication and
 
 ## Backend Setup
 
-1.  **Create and activate a virtual environment (recommended) **:
+1. **Create and activate a virtual environment (recommended)** :
    ```bash
    python3 -m venv venv
    source venv/bin/activate
